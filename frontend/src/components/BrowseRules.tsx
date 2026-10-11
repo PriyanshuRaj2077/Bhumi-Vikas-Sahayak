@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, CalendarClock, ChevronRight, Gavel, Search } from 'lucide-react'
+import { ArrowLeft, BookOpen, CalendarClock, Gavel, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { getRule, getRules, type RuleDetail, type RuleSummary } from '../api'
 import { useI18n } from '../i18n'
@@ -43,132 +43,90 @@ export function BrowseRules({ selected, onSelect, onOpenPdf }: Props) {
   }, [rules, filter])
 
   if (selected && detail) return <RuleReader rule={detail} onBack={() => onSelect(null)} onOpenPdf={onOpenPdf} />
-  if (selected && !detail) return <div className="p-8 text-center"><Spinner label="Loading statutory text…" /></div>
+  if (selected && !detail) return <Spinner label="…" />
 
   return (
-    <div className="space-y-6">
-      {/* Search Bar */}
-      <div className="no-print flex items-center gap-3 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 shadow-card focus-within:border-[var(--color-orange)] focus-within:ring-2 focus-within:ring-[var(--color-orange)]/20 transition">
-        <Search size={18} className="text-[var(--color-ink-light)]" aria-hidden />
-        <input
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder={t.searchRules}
-          className="flex-1 bg-transparent text-sm font-medium text-[var(--color-ink)] placeholder:text-[var(--color-ink-light)] outline-none"
-          autoFocus
-        />
-        <span className="rounded-full bg-[var(--color-surface-side)] border border-[var(--color-border)] px-3 py-1 font-mono text-xs font-bold text-[var(--color-ink-muted)]">
-          106 Rules
-        </span>
+    <div className="space-y-4">
+      <div className="no-print flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus-within:ring-4 focus-within:ring-brand-100">
+        <Search size={18} className="text-slate-400" aria-hidden />
+        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t.searchRules} className="flex-1 bg-transparent py-1 outline-none" autoFocus />
       </div>
-
-      {/* Rules Directory by Parts */}
-      <div className="space-y-6">
-        {groups.map(([part, items]) => (
-          <section key={part} className="space-y-3">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-ink-muted)] px-2 font-heading">
-              {part}
-            </h2>
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-              {items.map((r) => (
+      {groups.map(([part, items]) => (
+        <section key={part}>
+          <h2 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">{part}</h2>
+          <ul className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
+            {items.map((r) => (
+              <li key={r.rule}>
                 <button
-                  key={r.rule}
                   type="button"
                   onClick={() => onSelect(r.rule)}
-                  className="campus-card group flex w-full items-center justify-between gap-3 p-3.5 text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-[var(--color-orange)]/50 cursor-pointer"
+                  className="flex w-full items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm hover:border-brand-300 hover:bg-brand-50/40"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="flex h-8 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-orange-tint)] font-mono text-xs font-extrabold text-[var(--color-orange-text)]">
-                      R.{r.rule}
-                    </span>
-                    <span className="truncate text-xs font-bold text-[var(--color-ink)] group-hover:text-[var(--color-orange)] transition-colors">
-                      {r.title}
-                    </span>
-                  </div>
-
-                  <div className="flex shrink-0 items-center gap-2 text-xs">
-                    {r.amended_later && (
-                      <span className="rounded-full bg-[var(--color-yellow-tint)] p-1 text-[var(--color-yellow-text)]" title={t.amended}>
-                        <CalendarClock size={12} aria-label={t.amended} />
-                      </span>
-                    )}
-                    <span className="font-mono text-[11px] text-[var(--color-ink-light)]">p.{r.page_start}</span>
-                    <ChevronRight size={14} className="text-[var(--color-ink-light)]/60 group-hover:text-[var(--color-orange)] transition-colors" />
-                  </div>
+                  <span className="w-12 shrink-0 font-bold text-brand-600">{r.rule}</span>
+                  <span className="flex-1 text-slate-700">{r.title}</span>
+                  {r.amended_later && <CalendarClock size={14} className="text-amber-600" aria-label={t.amended} />}
+                  <span className="text-xs text-slate-400">p.{r.page_start}</span>
                 </button>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </div>
   )
 }
 
 function RuleReader({ rule, onBack, onOpenPdf }: { rule: RuleDetail; onBack: () => void; onOpenPdf: (t: PdfTarget) => void }) {
   const { t, lang } = useI18n()
+  // split the text at page boundaries so each part can jump to its PDF page
   const segments = rule.pages.map((p, i) => ({ page: p.page, text: rule.text.slice(p.offset, rule.pages[i + 1]?.offset ?? rule.text.length) }))
-
   return (
-    <article className="space-y-5">
-      <button
-        type="button"
-        onClick={onBack}
-        className="no-print inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-ink)] shadow-xs hover:bg-[var(--color-surface-side)] transition cursor-pointer"
-      >
-        <ArrowLeft size={14} aria-hidden /> <span>{t.tabBrowse}</span>
+    <article className="space-y-4">
+      <button type="button" onClick={onBack} className="no-print inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:underline">
+        <ArrowLeft size={16} aria-hidden /> {t.tabBrowse}
       </button>
-
-      {/* Header Card */}
-      <header className="campus-card p-6 sm:p-7">
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-orange)] font-bold">{rule.part}</span>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--color-ink)] sm:text-3xl font-heading">
+      <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <p className="text-sm font-semibold text-slate-500">{rule.part}</p>
+        <h1 className="text-2xl font-bold text-brand-900">
           Rule {rule.rule}: {rule.title}
         </h1>
-        <p className="mt-1 font-mono text-xs text-[var(--color-ink-light)]">
-          Official Gazette Reference: PDF p.{rule.page_start}
+        <p className="mt-1 text-sm text-slate-500">
+          PDF p.{rule.page_start}
           {rule.page_end !== rule.page_start ? `–${rule.page_end}` : ''}
         </p>
-
         {rule.later_amendments.map((a) => (
-          <div key={a.id} className="mt-4 flex gap-3 rounded-2xl border border-[var(--color-yellow-tint)] bg-[var(--color-yellow-tint)] p-4 text-xs text-[var(--color-ink)]">
-            <CalendarClock size={16} className="mt-0.5 shrink-0 text-[var(--color-yellow-text)]" aria-hidden />
-            <div>
-              <p className="font-bold text-[var(--color-yellow-text)]">
-                {t.amendedOn} {a.effective_date_display} (Rule {a.rule_ref})
-              </p>
-              <p className="mt-1 text-[var(--color-ink-muted)]">{lang === 'hi' ? a.summary_hi : a.summary_en}</p>
-              <a href={a.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-block font-bold text-[var(--color-yellow-text)] underline">
-                {t.source} ↗
+          <div key={a.id} className="mt-3 flex gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+            <CalendarClock size={16} className="mt-0.5 shrink-0" aria-hidden />
+            <span>
+              <strong>
+                {t.amendedOn} {a.effective_date_display} (Rule {a.rule_ref}):
+              </strong>{' '}
+              {lang === 'hi' ? a.summary_hi : a.summary_en}{' '}
+              <a href={a.source_url} target="_blank" rel="noreferrer" className="underline">
+                {t.source}
               </a>
-            </div>
+            </span>
           </div>
         ))}
       </header>
-
-      {/* Segmented Official Text with Page Buttons */}
-      <div className="campus-card p-6 sm:p-7 space-y-4">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         {segments.map((s) => (
-          <div key={s.page} className="group relative border-b border-[var(--color-border-subtle)] pb-5 last:border-none last:pb-0">
+          <div key={s.page} className="group relative">
             <button
               type="button"
               onClick={() => onOpenPdf({ page: s.page, label: `Rule ${rule.rule}` })}
-              className="no-print sticky top-2 mb-2 inline-flex items-center gap-1.5 rounded-full border border-[var(--color-orange)]/30 bg-[var(--color-orange-tint)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-orange-text)] shadow-xs hover:bg-[var(--color-orange)]/25 transition cursor-pointer"
+              className="no-print sticky top-0 mb-1 inline-flex items-center gap-1 rounded bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 hover:bg-brand-100"
             >
-              <BookOpen size={11} aria-hidden /> {t.page} {s.page}
+              <BookOpen size={12} aria-hidden /> {t.page} {s.page}
             </button>
-            <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[12px] leading-relaxed text-[var(--color-ink)] bg-[var(--color-input)] p-4 rounded-xl border border-[var(--color-border)]">
-              {s.text}
-            </pre>
+            <pre className="mb-3 overflow-x-auto whitespace-pre-wrap font-mono text-[0.8rem] leading-relaxed text-slate-800">{s.text}</pre>
           </div>
         ))}
       </div>
-
-      {/* Historical Gazette Amendments */}
       {rule.amendments.length > 0 && (
-        <section className="campus-card p-6 text-xs">
-          <h2 className="mb-2 font-extrabold uppercase tracking-wider text-[var(--color-ink-muted)]">{t.amendmentsMeta}</h2>
-          <ul className="list-disc space-y-1.5 pl-4 text-[var(--color-ink-muted)]">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 text-sm shadow-sm">
+          <h2 className="mb-2 font-semibold text-slate-700">{t.amendmentsMeta}</h2>
+          <ul className="list-disc space-y-1 pl-5 text-slate-600">
             {rule.amendments.map((a) => (
               <li key={a.notification + a.date}>
                 {a.kind} Notification No. {a.notification}, dated {a.date}
@@ -177,15 +135,13 @@ function RuleReader({ rule, onBack, onOpenPdf }: { rule: RuleDetail; onBack: () 
           </ul>
         </section>
       )}
-
-      {/* Judicial Court Notes */}
       {rule.comments.length > 0 && (
-        <section className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface-side)] p-6 text-xs shadow-2xs">
-          <h2 className="mb-2 flex items-center gap-2 font-extrabold uppercase tracking-wider text-[var(--color-ink-muted)]">
-            <Gavel size={14} className="text-[var(--color-orange)]" aria-hidden /> {t.courtNotes}
+        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm">
+          <h2 className="mb-2 flex items-center gap-1.5 font-semibold text-slate-700">
+            <Gavel size={15} aria-hidden /> {t.courtNotes}
           </h2>
           {rule.comments.map((c) => (
-            <p key={c} className="mb-2 text-[var(--color-ink-muted)] leading-relaxed">
+            <p key={c} className="mb-2 text-slate-600">
               {c}
             </p>
           ))}

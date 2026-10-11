@@ -1,4 +1,4 @@
-import { Calculator, ChevronRight, Info, MessageSquareText, Printer, Sparkles } from 'lucide-react'
+import { Calculator, Info, MessageSquareText, Printer } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { plotCheck, type Fact } from '../api'
 import { useI18n } from '../i18n'
@@ -67,64 +67,36 @@ export function PlotCheck({ onOpenPdf, onAsk }: Props) {
       : `My plot is ${areaSqm ?? area} sq m on a ${road} m road, frontage ${frontage || '?'} m, height ${height || '?'} m. `
 
   return (
-    <div className="space-y-6">
-      {/* Parameter Control Card */}
-      <section className="no-print campus-card p-6 sm:p-7">
-        <div className="mb-6 flex items-center justify-between border-b border-[var(--color-border)] pb-4">
-          <div>
-            <h1 className="flex items-center gap-3 text-xl font-extrabold tracking-tight text-[var(--color-ink)] sm:text-2xl font-heading">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-orange-tint)] text-[var(--color-orange)]">
-                <Calculator size={20} aria-hidden />
-              </span>
-              <span>{t.plotTitle}</span>
-            </h1>
-            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
-              Instant deterministic table lookups directly from Rules 56, 42, 61 & 21. No AI extrapolation.
-            </p>
-          </div>
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-[var(--color-orange)]/30 bg-[var(--color-orange-tint)] px-3 py-1 text-[11px] font-bold text-[var(--color-orange-text)]">
-            <Sparkles size={11} /> 100% Deterministic
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-5">
+      <section className="no-print rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h1 className="mb-4 flex items-center gap-2 text-xl font-bold text-brand-900">
+          <Calculator size={22} aria-hidden /> {t.plotTitle}
+        </h1>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field label={t.plotArea}>
-            <div className="flex rounded-xl border border-[var(--color-border)] bg-[var(--color-input)] shadow-2xs focus-within:border-[var(--color-orange)] focus-within:bg-[var(--color-surface)] focus-within:ring-2 focus-within:ring-[var(--color-orange)]/20 transition">
-              <input
-                inputMode="decimal"
-                value={area}
-                onChange={(e) => setArea(e.target.value.replace(/[^\d.]/g, ''))}
-                aria-label={t.plotArea}
-                placeholder="200"
-                className="w-full bg-transparent px-3.5 py-2.5 text-base font-bold tabular-nums text-[var(--color-ink)] outline-none"
-              />
+            <div className="flex">
+              <NumInput value={area} onChange={setArea} ariaLabel={t.plotArea} className="rounded-r-none" />
               <select
                 value={unit}
                 onChange={(e) => setUnit(e.target.value as 'sqm' | 'sqft')}
-                className="border-l border-[var(--color-border)] bg-[var(--color-surface-side)] px-3 text-xs font-bold text-[var(--color-ink-muted)] outline-none"
-                aria-label="Unit"
+                className="rounded-r-lg border border-l-0 border-slate-300 bg-slate-50 px-2 text-sm"
+                aria-label="unit"
               >
                 <option value="sqm">sq m</option>
                 <option value="sqft">sq ft</option>
               </select>
             </div>
-            {unit === 'sqft' && areaSqm && (
-              <p className="mt-1 font-mono text-[11px] text-[var(--color-ink-light)]">= {areaSqm} sq m</p>
-            )}
+            {unit === 'sqft' && areaSqm ? <p className="mt-1 text-xs text-slate-500">= {areaSqm} sq m</p> : null}
           </Field>
-
           <Field label={`${t.roadWidth} (m)`}>
-            <NumInput value={road} onChange={setRoad} ariaLabel={t.roadWidth} placeholder="9.0" />
+            <NumInput value={road} onChange={setRoad} ariaLabel={t.roadWidth} />
           </Field>
-
           <Field label={`${t.frontage} (m)`}>
-            <NumInput value={frontage} onChange={setFrontage} ariaLabel={t.frontage} placeholder="10.0" />
+            <NumInput value={frontage} onChange={setFrontage} ariaLabel={t.frontage} />
           </Field>
-
           <Field label={`${t.height} (m)`}>
-            <NumInput value={height} onChange={setHeight} ariaLabel={t.height} placeholder="10.0" />
+            <NumInput value={height} onChange={setHeight} ariaLabel={t.height} />
           </Field>
-
           <Field label={t.use}>
             <Segmented
               value={use}
@@ -136,7 +108,6 @@ export function PlotCheck({ onOpenPdf, onAsk }: Props) {
               ]}
             />
           </Field>
-
           <Field label={t.bType}>
             <Segmented
               value={btype}
@@ -149,98 +120,67 @@ export function PlotCheck({ onOpenPdf, onAsk }: Props) {
               ]}
             />
           </Field>
-
           <Field label={`${t.builtUp} (sq m, ${t.optional})`}>
-            <NumInput value={builtUp} onChange={setBuiltUp} ariaLabel={t.builtUp} placeholder="e.g. 250" />
+            <NumInput value={builtUp} onChange={setBuiltUp} ariaLabel={t.builtUp} placeholder="FAR max" />
           </Field>
         </div>
       </section>
 
       {error && <Warning>{error}</Warning>}
 
-      {/* Reactive Calculation Results */}
       {facts.length > 0 && (
-        <section className="no-print overflow-hidden campus-card">
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-side)] px-6 py-4">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-ink-muted)]">{t.results}</h2>
-            <span className="font-mono text-xs text-[var(--color-ink-light)]">{facts.length} statutory facts computed</span>
-          </div>
-
-          <div className="divide-y divide-[var(--color-border-subtle)]">
+        <section className="no-print rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <h2 className="border-b border-slate-100 px-5 py-3 font-semibold text-slate-700">{t.results}</h2>
+          <ul className="divide-y divide-slate-100">
             {facts.map((f, i) => (
-              <button
-                key={f.key + i}
-                type="button"
-                onClick={() => (f.quote || f.page) && onOpenPdf({ page: f.page, quote: f.quote, label: f.citation })}
-                className="group flex w-full flex-col gap-2 p-5 text-left transition hover:bg-[var(--color-surface-side)]/60 sm:flex-row sm:items-center sm:justify-between cursor-pointer"
-              >
-                <div className="min-w-0 sm:w-1/3">
-                  <span className="text-xs font-bold text-[var(--color-ink-muted)]">
-                    {lang === 'hi' ? f.label_hi || f.label : f.label}
+              <li key={f.key + i}>
+                <button
+                  type="button"
+                  onClick={() => (f.quote || f.page) && onOpenPdf({ page: f.page, quote: f.quote, label: f.citation })}
+                  className="grid w-full grid-cols-1 gap-1 px-5 py-3 text-left hover:bg-brand-50/50 sm:grid-cols-[minmax(10rem,1fr)_minmax(8rem,1.2fr)_auto] sm:items-center sm:gap-4"
+                >
+                  <span className="text-sm font-medium text-slate-600">{lang === 'hi' ? f.label_hi || f.label : f.label}</span>
+                  <span className={`font-bold tabular-nums ${f.status === 'not_eligible' ? 'text-amber-700' : 'text-brand-900'}`}>
+                    {f.display}
+                    {f.edge_case && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">{t.check}</span>}
+                  </span>
+                  <span className="text-xs font-semibold text-brand-600 sm:text-right">
+                    {f.citation} · p.{f.page}
+                    <span className="block font-normal text-slate-500">{f.row_label}</span>
                   </span>
                   {f.notes.length > 0 && (
-                    <span className="mt-0.5 flex items-center gap-1 text-[11px] text-[var(--color-ink-light)]">
-                      <Info size={11} aria-hidden />
-                      <span className="truncate">{f.notes[0]}</span>
+                    <span className="flex gap-1.5 text-xs text-slate-500 sm:col-span-3">
+                      <Info size={13} className="mt-0.5 shrink-0" aria-hidden />
+                      {f.notes.join(' ')}
                     </span>
                   )}
-                </div>
-
-                <div className="sm:w-1/3">
-                  <span
-                    className={`text-lg font-extrabold tracking-tight tabular-nums font-heading ${
-                      f.status === 'not_eligible' ? 'text-amber-700 dark:text-amber-400' : 'text-[var(--color-ink)]'
-                    }`}
-                  >
-                    {f.display}
-                  </span>
-                  {f.edge_case && (
-                    <span className="ml-2 inline-flex items-center rounded-full border border-amber-300 dark:border-amber-600 bg-amber-100 dark:bg-amber-950/50 px-2 py-0.5 text-[10px] font-bold text-amber-900 dark:text-amber-200">
-                      {t.check}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between gap-3 text-xs sm:w-1/3 sm:justify-end">
-                  <div className="text-right">
-                    <span className="font-bold text-[var(--color-orange-text)]">{f.citation}</span>
-                    <span className="block font-mono text-[11px] text-[var(--color-ink-light)]">p.{f.page} · {f.row_label}</span>
-                  </div>
-                  <ChevronRight size={15} className="text-[var(--color-ink-light)]/60 transition group-hover:translate-x-0.5 group-hover:text-[var(--color-orange)]" aria-hidden />
-                </div>
-              </button>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="space-y-2 px-5 pb-4">
+            {hints.map((h) => (
+              <Warning key={h}>{h}</Warning>
             ))}
           </div>
-
-          {hints.length > 0 && (
-            <div className="space-y-2 p-5 border-t border-[var(--color-border)] bg-[var(--color-surface-side)]/40">
-              {hints.map((h) => (
-                <Warning key={h}>{h}</Warning>
-              ))}
-            </div>
-          )}
-
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button type="button" onClick={() => window.print()} className="btn-primary">
-                <Printer size={15} aria-hidden /> <span>{t.print}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => onAsk(question)}
-                className="btn-secondary"
-              >
-                <MessageSquareText size={15} aria-hidden /> <span>{t.askFollow}</span>
-              </button>
-            </div>
-            <span className="font-mono text-xs text-[var(--color-ink-light)]">
+          <div className="flex flex-wrap gap-2 border-t border-slate-100 px-5 py-3">
+            <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+              <Printer size={16} aria-hidden /> {t.print}
+            </button>
+            <button
+              type="button"
+              onClick={() => onAsk(question)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              <MessageSquareText size={16} aria-hidden /> {t.askFollow}
+            </button>
+            <span className="ml-auto self-center text-xs text-slate-500">
               {t.rulesVersion}: {version}
             </span>
           </div>
         </section>
       )}
 
-      {/* Printable Citizen Slip (Print-only) */}
       <PrintSlip
         question={question}
         facts={facts}
@@ -254,8 +194,8 @@ export function PlotCheck({ onOpenPdf, onAsk }: Props) {
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="block text-xs">
-      <span className="mb-1.5 block font-bold text-[var(--color-ink-muted)]">{label}</span>
+    <label className="block text-sm">
+      <span className="mb-1 block font-medium text-slate-600">{label}</span>
       {children}
     </label>
   )
@@ -265,11 +205,13 @@ function NumInput({
   value,
   onChange,
   ariaLabel,
+  className = '',
   placeholder,
 }: {
   value: string
   onChange: (v: string) => void
   ariaLabel: string
+  className?: string
   placeholder?: string
 }) {
   return (
@@ -279,14 +221,14 @@ function NumInput({
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value.replace(/[^\d.]/g, ''))}
       aria-label={ariaLabel}
-      className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-input)] px-3.5 py-2.5 text-base font-bold tabular-nums text-[var(--color-ink)] shadow-2xs outline-none transition focus:border-[var(--color-orange)] focus:bg-[var(--color-surface)] focus:ring-2 focus:ring-[var(--color-orange)]/20 placeholder:text-[var(--color-ink-light)]"
+      className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-lg font-semibold tabular-nums outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100 ${className}`}
     />
   )
 }
 
 function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: [string, string][] }) {
   return (
-    <div className="flex flex-wrap gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-side)] p-1" role="radiogroup">
+    <div className="flex flex-wrap gap-1 rounded-lg bg-slate-100 p-1" role="radiogroup">
       {options.map(([v, l]) => (
         <button
           key={v}
@@ -294,11 +236,7 @@ function Segmented({ value, onChange, options }: { value: string; onChange: (v: 
           role="radio"
           aria-checked={value === v}
           onClick={() => onChange(v)}
-          className={`flex-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer ${
-            value === v
-              ? 'bg-[var(--color-surface)] text-[var(--color-ink)] font-extrabold shadow-2xs border border-[var(--color-border)]'
-              : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface)]/50'
-          }`}
+          className={`flex-1 rounded-md px-2 py-1.5 text-xs font-semibold whitespace-nowrap ${value === v ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}
         >
           {l}
         </button>

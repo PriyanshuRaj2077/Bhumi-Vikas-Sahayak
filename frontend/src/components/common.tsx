@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgeCheck, CalendarClock, ExternalLink, FileText, Loader2 } from 'lucide-react'
+import { AlertTriangle, BadgeCheck, CalendarClock, ExternalLink, FileText } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { AmendmentBanner, Fact } from '../api'
 import { useI18n } from '../i18n'
@@ -10,17 +10,7 @@ export interface PdfTarget {
   label?: string
 }
 
-export function RuleBadge({
-  rule,
-  subRule,
-  page,
-  onOpen,
-}: {
-  rule: string
-  subRule?: string
-  page?: number | null
-  onOpen?: () => void
-}) {
+export function RuleBadge({ rule, subRule, page, onOpen }: { rule: string; subRule?: string; page?: number | null; onOpen?: () => void }) {
   const { lang } = useI18n()
   const text = `${lang === 'hi' ? 'नियम' : 'Rule'} ${rule}${subRule ?? ''}`
   return (
@@ -28,76 +18,48 @@ export function RuleBadge({
       type="button"
       onClick={onOpen}
       disabled={!onOpen}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-user-card)] px-3 py-1 text-xs font-bold text-[var(--color-ink)] shadow-2xs transition-all hover:bg-[var(--color-orange-tint)] hover:border-[var(--color-orange)] hover:text-[var(--color-orange-text)] disabled:cursor-default cursor-pointer"
+      className="inline-flex items-center gap-1 rounded-full border border-brand-200 bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700 hover:bg-brand-100 disabled:cursor-default"
       title={page ? `PDF p.${page}` : undefined}
     >
-      <FileText size={12} className="shrink-0 text-[var(--color-orange)]" aria-hidden />
-      <span>{text}</span>
-      {page ? <span className="font-mono text-[11px] text-[var(--color-ink-light)]">· p.{page}</span> : null}
+      <FileText size={12} aria-hidden />
+      {text}
+      {page ? <span className="font-normal text-brand-500">· p.{page}</span> : null}
     </button>
   )
 }
 
-export function FactChip({
-  fact,
-  onOpen,
-  index = 0,
-}: {
-  fact: Fact
-  onOpen: (t: PdfTarget) => void
-  index?: number
-}) {
+export function FactChip({ fact, onOpen, index = 0 }: { fact: Fact; onOpen: (t: PdfTarget) => void; index?: number }) {
   const { lang, t } = useI18n()
   const label = lang === 'hi' ? fact.label_hi || fact.label : fact.label
-
-  // Campus-Connect color variants for cards
-  const colorSchemes = [
-    { border: 'border-l-[5px] border-l-[#EF7B45]' },
-    { border: 'border-l-[5px] border-l-[#5BA869]' },
-    { border: 'border-l-[5px] border-l-[#6E97C9]' },
-    { border: 'border-l-[5px] border-l-[#F5C13D]' },
-  ]
-  const scheme = colorSchemes[index % colorSchemes.length]
-
+  const tone =
+    fact.status === 'not_eligible'
+      ? 'border-amber-300 bg-amber-50'
+      : fact.status === 'not_applicable' || fact.status === 'info'
+        ? 'border-slate-200 bg-white'
+        : 'border-emerald-200 bg-white'
   return (
     <button
       type="button"
       onClick={() => onOpen({ page: fact.page, quote: fact.quote || fact.source, label: fact.citation })}
-      className={`rise group relative flex min-w-0 flex-col items-start gap-1.5 rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-left shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-card-lg cursor-pointer ${
-        fact.status === 'not_eligible'
-          ? 'border-l-[5px] border-l-amber-500 bg-[var(--color-yellow-tint)]/40'
-          : scheme.border
-      }`}
-      style={{ animationDelay: `${index * 40}ms` }}
+      className={`rise group flex min-w-0 flex-col items-start gap-1 rounded-xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${tone}`}
+      style={{ animationDelay: `${index * 60}ms` }}
     >
-      <div className="flex w-full items-center justify-between gap-2">
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-ink-muted)]">{label}</span>
+      <span className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</span>
+      <span className="text-lg font-bold leading-snug text-brand-900 tabular-nums">{fact.display}</span>
+      <span className="flex flex-wrap items-center gap-1.5 text-xs text-slate-600">
+        <span className="font-semibold text-brand-600">
+          {fact.citation} · p.{fact.page}
+        </span>
         {fact.edge_case ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-100 dark:bg-amber-950/40 px-2 py-0.5 text-[10px] font-extrabold text-amber-900 dark:text-amber-200">
-            <AlertTriangle size={10} aria-hidden /> {t.check}
+          <span className="inline-flex items-center gap-0.5 rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-800">
+            <AlertTriangle size={11} aria-hidden /> {t.check}
           </span>
         ) : (
-          <span className="inline-flex items-center text-[var(--color-green-text)]" title={t.calculated}>
-            <BadgeCheck size={16} aria-hidden />
+          <span className="inline-flex items-center gap-0.5 text-emerald-700" title={t.calculated}>
+            <BadgeCheck size={12} aria-hidden />
           </span>
         )}
-      </div>
-
-      <span className="font-heading text-2xl font-extrabold tracking-tight text-[var(--color-ink)] tabular-nums">
-        {fact.display}
       </span>
-
-      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[var(--color-ink-muted)]">
-        <span className="font-bold text-[var(--color-orange-text)]">
-          {fact.citation}
-        </span>
-        <span className="font-mono text-[11px] text-[var(--color-ink-light)]">· p.{fact.page}</span>
-        {fact.row_label && (
-          <span className="hidden truncate text-[var(--color-ink-light)] sm:inline">
-            · {fact.row_label}
-          </span>
-        )}
-      </div>
     </button>
   )
 }
@@ -105,25 +67,15 @@ export function FactChip({
 export function AmendmentNotice({ a }: { a: AmendmentBanner }) {
   const { t } = useI18n()
   return (
-    <div
-      className="rise flex gap-3.5 rounded-[18px] border border-amber-300/80 dark:border-amber-700/60 bg-[var(--color-yellow-tint)] p-4 text-sm text-[var(--color-ink)] shadow-xs"
-      role="note"
-    >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[var(--color-surface)] text-[var(--color-yellow-text)] shadow-2xs border border-[var(--color-border)]">
-        <CalendarClock size={18} aria-hidden />
-      </div>
-      <div className="space-y-1">
-        <p className="font-heading font-extrabold text-[#966708] dark:text-[#FDE076]">
+    <div className="rise flex gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900" role="note">
+      <CalendarClock className="mt-0.5 shrink-0" size={18} aria-hidden />
+      <div>
+        <p className="font-semibold">
           {t.amendedOn} {a.date} · Rule {a.rule_ref} {t.amendBody}
         </p>
-        <p className="text-sm text-[var(--color-ink-muted)] leading-relaxed">{a.summary}</p>
-        <p className="text-xs text-[var(--color-ink-light)]">
-          <a
-            className="inline-flex items-center gap-1 font-bold text-[#966708] dark:text-[#FDE076] underline hover:text-[var(--color-ink)]"
-            href={a.source_url}
-            target="_blank"
-            rel="noreferrer"
-          >
+        <p className="mt-1">{a.summary}</p>
+        <p className="mt-1 text-xs text-amber-800">
+          <a className="inline-flex items-center gap-1 underline" href={a.source_url} target="_blank" rel="noreferrer">
             {t.source} <ExternalLink size={11} aria-hidden />
           </a>{' '}
           · {a.gazette_reference}
@@ -135,18 +87,18 @@ export function AmendmentNotice({ a }: { a: AmendmentBanner }) {
 
 export function Warning({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-start gap-3 rounded-[18px] border border-amber-200 dark:border-amber-800/50 bg-[var(--color-yellow-tint)]/80 p-3.5 text-sm text-[var(--color-ink)] shadow-2xs">
-      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[var(--color-yellow-text)]" aria-hidden />
-      <div className="leading-relaxed text-[var(--color-ink-muted)] font-medium">{children}</div>
+    <div className="flex gap-2 rounded-lg border border-amber-200 bg-amber-50/70 px-3 py-2 text-sm text-amber-900">
+      <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden />
+      <div>{children}</div>
     </div>
   )
 }
 
 export function Spinner({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center gap-2.5 text-sm font-bold text-[var(--color-ink-muted)]" role="status">
-      <Loader2 size={16} className="animate-spin text-[var(--color-orange)]" aria-hidden />
-      <span>{label}</span>
+    <span className="inline-flex items-center gap-2 text-sm text-slate-600" role="status">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" aria-hidden />
+      {label}
     </span>
   )
 }

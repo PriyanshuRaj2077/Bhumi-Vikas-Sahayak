@@ -13,41 +13,26 @@ export function Onboarding() {
     setStep(-1)
   }
   return (
-    <div
-      className="no-print fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 backdrop-blur-sm sm:items-center"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="rise w-full max-w-md campus-card p-6 shadow-2xl sm:p-7">
+    <div className="no-print fixed inset-0 z-50 flex items-end justify-center bg-brand-900/30 p-4 backdrop-blur-[1px] sm:items-center" role="dialog" aria-modal="true">
+      <div className="rise w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
         <div className="mb-4 flex gap-1.5">
           {steps.map((_, i) => (
-            <span
-              key={i}
-              className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                i <= step ? 'bg-[var(--color-orange)]' : 'bg-[var(--color-border)]'
-              }`}
-            />
+            <span key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-saffron-500' : 'bg-slate-200'}`} />
           ))}
         </div>
-        <p className="font-mono text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-ink-light)]">
-          Step {step + 1} of {steps.length}
+        <p className="text-sm font-semibold text-slate-500">
+          {step + 1} / {steps.length}
         </p>
-        <p className="mt-2 text-lg font-extrabold leading-snug tracking-tight text-[var(--color-ink)] sm:text-xl font-heading">
-          {steps[step]}
-        </p>
-        <div className="mt-7 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={finish}
-            className="rounded-full px-3 py-1.5 text-xs font-semibold text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-side)] transition cursor-pointer"
-          >
+        <p className="mt-1 text-lg font-semibold text-brand-900">{steps[step]}</p>
+        <div className="mt-6 flex justify-between">
+          <button type="button" onClick={finish} className="text-sm font-semibold text-slate-500 hover:text-slate-700">
             {t.skip}
           </button>
           <button
             type="button"
             autoFocus
             onClick={() => (step === steps.length - 1 ? finish() : setStep(step + 1))}
-            className="btn-primary"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
           >
             {step === steps.length - 1 ? t.done : t.next}
           </button>
