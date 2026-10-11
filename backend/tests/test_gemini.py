@@ -59,7 +59,9 @@ def test_gemini_tool_loop_and_verified_quotes(gemini):
                    '{"n": 2, "rule": "56", "quote": "residential buildings may have nine floors in all cases"}]}\n```'),
     ])
     final = list(ask_events("What is the minimum rear open space for a 150 sq m residential plot?"))[-1]
-    assert final["status"] == "answered" and final["mode"] == "ai" and final["provider"] == "gemini"
+    assert final["status"] == "answered" and final["mode"] == "ai"
+    assert "provider" not in final and "model" not in final  # the AI used is never exposed to users
+    assert "gemini" not in str(final).lower()
     assert final["facts"][0]["value"] == 1.5
     assert [(c["rule"], c["sub_rule"], c["page"]) for c in final["citations"]] == [("56", "(2)(a)", 78)]
     assert "[1]" in final["answer_md"] and "[2]" not in final["answer_md"]

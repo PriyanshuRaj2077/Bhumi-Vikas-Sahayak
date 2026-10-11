@@ -102,7 +102,7 @@ def answer_stream(intake: Intake) -> Iterator[dict]:
             final = msg
             break
     except anthropic.AuthenticationError:
-        yield {"event": "error", "message": "The Anthropic API key is missing or invalid.", "code": "auth"}
+        yield {"event": "error", "message": "The AI service key is missing or invalid.", "code": "auth"}
         return
     except anthropic.RateLimitError:
         yield {"event": "error", "message": "Too many requests right now. Please retry in a minute.", "code": "rate_limit"}
@@ -112,7 +112,7 @@ def answer_stream(intake: Intake) -> Iterator[dict]:
         return
     except anthropic.APIStatusError as exc:
         log.exception("Anthropic API error")
-        yield {"event": "error", "message": f"AI service error ({exc.status_code}).", "code": "api"}
+        yield {"event": "error", "message": "AI service error. Showing offline results.", "code": "api"}
         return
 
     if final is None:

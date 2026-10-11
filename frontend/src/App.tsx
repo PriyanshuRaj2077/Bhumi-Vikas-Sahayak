@@ -57,7 +57,7 @@ export default function App() {
                 className={`hidden items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold sm:inline-flex ${meta.ai_available ? 'bg-emerald-500/20 text-emerald-50' : 'bg-white/10 text-brand-100'}`}
               >
                 <span className={`h-2 w-2 rounded-full ${meta.ai_available ? 'bg-emerald-300' : 'bg-slate-300'}`} />
-                {meta.ai_available ? `${t.aiOn} · ${meta.provider === 'gemini' ? 'Gemini' : 'Claude'}` : t.aiOff}
+                {meta.ai_available ? t.aiOn : t.aiOff}
               </span>
             )}
             {meta?.eval && (

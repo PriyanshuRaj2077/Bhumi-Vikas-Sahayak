@@ -14,8 +14,8 @@ python verify.py                 # add --frontend to also build the React app (N
 ```
 - Prints one PASS/FAIL line per check and exits `0` only if all pass.
 - Writes **`verify_report.json`** (machine-readable): data integrity, secret scan, backend tests, offline accuracy eval, optional frontend build.
-- Expected today: `106 rules, 1 amendment`, `124 passed, 0 failed`, `17/17 sample questions (offline mode); all 30/30`.
-- AI provider is chosen by `LLM_PROVIDER` (`gemini` | `anthropic` | `auto`) and the matching key (`GEMINI_API_KEY` / `ANTHROPIC_API_KEY`). With no key, everything still runs in offline mode.
+- Expected today: `106 rules, 1 amendment`, `125 passed, 0 failed`, `17/17 sample questions (offline mode); all 30/30`.
+- The AI provider is not exposed to end users (UI or API); check it with `python -m app.cli meta`. It is chosen by `LLM_PROVIDER` (`gemini` | `anthropic` | `auto`) and the matching key (`GEMINI_API_KEY` / `ANTHROPIC_API_KEY`). With no key, everything still runs in offline mode.
 
 ## 3. Ask the tool directly (no server, JSON output)
 
@@ -43,7 +43,6 @@ Over HTTP (start with `cd backend && python -m uvicorn app.main:app --port 8000`
 |---|---|
 | `status` | `answered` · `not_found` · `rule` (question was just "rule 56") · `error` |
 | `mode` | `ai` (Gemini or Claude + calculators), `offline` (calculators + keyword search; no API key), `rules` (out-of-scope pre-filter) |
-| `provider` | `gemini` or `anthropic` when `mode = ai` |
 | `answer_md` | Short answer in the question's language; `[n]` markers refer to `citations[n-1]` |
 | `facts[]` | Calculator results: `label`, `display`, `value`, `unit`, `rule`, `sub_rule`, `page`, `row_label` (table row used), `quote` (verbatim rule text), `notes`, `edge_case`, `status` |
 | `citations[]` | `n`, `rule`, `sub_rule`, `title`, `page` (exact PDF page), `quote` (verbatim text), `pdf_url`, `amendment_id` |
@@ -81,7 +80,7 @@ backend/data/
   pdf/en.pdf, pdf/hi.pdf      official PDFs (source of truth)
   amendments.json             later amendments overlay (28-08-2026, Rule 2(5)(c))
   glossary_hi.json            Hindi ↔ English terms
-backend/tests/                124 tests: calculators (every row/boundary, quote+page match), engines (fake Claude and Gemini clients), API, CLI
+backend/tests/                125 tests: calculators (every row/boundary, quote+page match), engines (fake Claude and Gemini clients), API, CLI
 eval/gold.jsonl               17 official sample questions (S01–S17) + 13 extra counter cases (T01–T13) with expected rules/numbers
 eval/run_eval.py              scorer → eval/results/{offline,ai}.json + .md
 frontend/src/                 React 19 + Vite + Tailwind UI (Ask, Plot Check, Browse, PDF pane with highlight, print slip, EN/HI)

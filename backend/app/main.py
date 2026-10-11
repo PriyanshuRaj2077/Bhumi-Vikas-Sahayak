@@ -76,9 +76,9 @@ def ask_events(question: str, lang: str = "auto") -> Iterator[dict]:
             if ev["event"] == "llm_done":
                 ans = build_answer(question=it.question, lang=it.lang, answer_text=ev["text"], citations=ev["citations"],
                                    facts=ev["facts"], mode="ai", extra_warnings=warnings + ev.get("warnings", []))
-                ans.update(id=qa_id, latency_ms=ev["latency_ms"], model=ev["model"], usage=ev["usage"],
-                           provider=config.llm_provider())
-                store.log_answer(qa_id, it.question, ans, ev["usage"], ev["model"], ev["latency_ms"])
+                ans.update(id=qa_id, latency_ms=ev["latency_ms"])
+                # which AI answered is kept in the server log only, never sent to the user
+                store.log_answer(qa_id, it.question, ans, ev["usage"], f"{config.llm_provider()}:{ev['model']}", ev["latency_ms"])
                 yield {"event": "final", **ans}
                 return
             if ev["event"] == "error":
@@ -89,7 +89,7 @@ def ask_events(question: str, lang: str = "auto") -> Iterator[dict]:
     else:
         if not config.has_llm_credentials():
             warnings.append("एआई उत्तर बंद हैं (API कुंजी नहीं है); गणना परिणाम और संबंधित नियम दिखाए गए हैं।" if it.lang == "hi"
-                            else "AI answers are off (no GEMINI_API_KEY or ANTHROPIC_API_KEY configured); showing calculator results and the matching rules.")
+                            else "AI answers are off (no API key configured); showing calculator results and the matching rules.")
         else:
             warnings.append("आज की एआई प्रश्न सीमा पूरी हो गई; ऑफ़लाइन परिणाम दिखाए गए हैं।" if it.lang == "hi"
                             else "Daily AI question limit reached; showing offline results.")
@@ -209,13 +209,12 @@ def meta():
     eval_path = config.ROOT_DIR / "eval" / "results" / "latest.json"
     eval_summary = None
     if eval_path.exists():
-        eval_summary = json.loads(eval_path.read_text(encoding="utf-8")).get("summary")
+        eval_summary = json.loads(eval_path.read_text(encoding="utf-8")).get("summary") or {}
+        eval_summary = {k: v for k, v in eval_summary.items() if k not in ("provider", "model")}
     return {
         "rules_version": corpus.rules_version(),
         "amendments": corpus.amendments(),
         "ai_available": config.has_llm_credentials(),
-        "provider": config.llm_provider(),
-        "model": config.active_model(),
         "eval": eval_summary,
         "stats": store.stats(),
         "recent": store.recent(),
@@ -237,8 +236,7 @@ def feedback(body: FeedbackIn):
 
 @app.get("/healthz")
 def healthz():
-    return {"ok": True, "rules": len(corpus.rules()), "ai_available": config.has_llm_credentials(),
-            "provider": config.llm_provider(), "model": config.active_model()}
+    return {"ok": True, "rules": len(corpus.rules()), "ai_available": config.has_llm_credentials()}
 
 
 # ---------------------------------------------------------------------------

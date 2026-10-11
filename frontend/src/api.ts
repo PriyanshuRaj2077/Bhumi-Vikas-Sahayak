@@ -180,8 +180,6 @@ export interface Meta {
   rules_version: string
   amendments: { id: string; rule_ref: string; effective_date_display: string; summary_en: string; summary_hi: string; source_url: string; gazette_reference: string }[]
   ai_available: boolean
-  provider: 'gemini' | 'anthropic' | null
-  model: string | null
   eval: { total: number; correct: number; label: string; mode: 'ai' | 'offline' } | null
   stats: { questions: number; feedback_correct: number; feedback_wrong: number }
   recent: { id: string; question: string; status: string; rules: string[]; lang: Lang }[]

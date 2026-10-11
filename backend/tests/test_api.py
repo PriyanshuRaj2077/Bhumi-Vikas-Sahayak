@@ -97,3 +97,10 @@ def test_personal_data_is_masked_before_logging():
     body = client.post("/api/ask/json", json={"question": "Who signs my plans? call me 9876543210 or a@b.com"}).json()
     rows = store.conn().execute("SELECT question FROM qa_log WHERE id=?", (body["id"],)).fetchall()
     assert rows and "9876543210" not in rows[0][0] and "a@b.com" not in rows[0][0]
+
+
+def test_public_endpoints_do_not_reveal_ai_provider(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "x")
+    for path in ("/api/meta", "/healthz"):
+        body = client.get(path).text.lower()
+        assert "gemini" not in body and "anthropic" not in body and "claude" not in body and '"provider"' not in body

@@ -107,9 +107,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if a.cmd == "meta":
+        from . import config
         from .main import meta
 
-        _print(meta())
+        _print({**meta(), "provider": config.llm_provider(), "model": config.active_model()})
         return 0
 
     if a.cmd == "tools":

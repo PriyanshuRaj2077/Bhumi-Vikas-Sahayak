@@ -8,7 +8,7 @@
 
 | | |
 |---|---|
-| ✅ `python verify.py` | data integrity · secret scan · **124 backend tests** · accuracy eval → `verify_report.json` |
+| ✅ `python verify.py` | data integrity · secret scan · **125 backend tests** · accuracy eval → `verify_report.json` |
 | 🧠 AI provider | **Google Gemini** (`gemini-3.8-flash`, default) or **Anthropic Claude**, chosen by one setting; every quote is verified word for word against the rules |
 | 🎯 Sample questions | **17 / 17** offline mode (see [Accuracy](#accuracy) for caveats); AI mode needs an API key to measure |
 | 🌐 Languages | English and Hindi (UI, questions, answers) |
@@ -106,7 +106,7 @@ Output on the build machine:
 ```
 PASS  data_integrity       106 rules, 1 amendment(s)
 PASS  no_secrets_in_repo
-PASS  backend_tests        124 passed, 0 failed
+PASS  backend_tests        125 passed, 0 failed
 PASS  eval_offline         17/17 sample questions correct (offline mode); all 30/30
 PASS  frontend_build
 
@@ -166,7 +166,7 @@ The app is **one Docker container** that serves the API, the official PDFs and t
 2. Runtime: **Docker**. Instance: **Free**. Health check path: **`/healthz`**.
 3. **Environment variables**: `LLM_PROVIDER=gemini`, `GEMINI_API_KEY=<your key>`, `MAX_QUESTIONS_PER_DAY=300`.
 4. **Create Web Service**. After the build (~5 min) the app is live at `https://<name>.onrender.com`.
-5. Check `https://<name>.onrender.com/healthz` → `"rules": 106, "ai_available": true, "provider": "gemini"`.
+5. Check `https://<name>.onrender.com/healthz` → `"rules": 106, "ai_available": true`. (The app never shows users which AI answered; the provider appears only in the server logs and in `python -m app.cli meta`.)
 
 The free tier sleeps after 15 min without visitors (the first request then takes ~40 s), so open the link before a demo. The SQLite question log resets on restart.
 
@@ -244,7 +244,7 @@ The full field reference is in [AGENTS.md](AGENTS.md#answer-object-same-for-cli-
 │   │   ├── offline.py, search.py      no-AI answers, BM25 search
 │   │   └── store.py                   SQLite log + feedback (no personal data)
 │   ├── data/                          rules JSONL, official PDFs, amendments.json, Hindi glossary
-│   └── tests/                         124 tests
+│   └── tests/                         125 tests
 ├── frontend/src/                      React UI (App, AskView, AnswerPanel, PlotCheck, BrowseRules, PdfPane, PrintSlip)
 ├── eval/                              gold questions, scorer, results
 ├── e2e/smoke.mjs                      browser test (Edge via Playwright)
@@ -308,7 +308,7 @@ When a new consolidated copy is published, replace `backend/data/source/bhumi_vi
 
 **Backend:** Python 3.12 · FastAPI · Google `google-genai` SDK (Gemini function calling) · Anthropic Python SDK (Claude: Citations, prompt caching, strict tool use, streaming) · SQLite · pytest
 **Frontend:** React 19 · TypeScript · Vite · Tailwind CSS v4 · react-pdf (pdf.js) · lucide icons · Noto Sans + Noto Sans Devanagari
-**Testing:** pytest (124 tests) · offline/AI eval harness · Playwright with Microsoft Edge
+**Testing:** pytest (125 tests) · offline/AI eval harness · Playwright with Microsoft Edge
 
 ## Licence
 

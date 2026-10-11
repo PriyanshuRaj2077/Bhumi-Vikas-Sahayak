@@ -127,7 +127,8 @@ def answer_stream(intake: Intake) -> Iterator[dict]:
                 usage["cache_read_input_tokens"] += getattr(um, "cached_content_token_count", 0) or 0
             calls = resp.function_calls or []
             if not resp.candidates:
-                yield {"event": "error", "message": "Gemini returned no answer (it may have been blocked).", "code": "blocked"}
+                log.warning("AI returned no candidates")
+                yield {"event": "error", "message": "The AI service returned no answer. Showing offline results.", "code": "blocked"}
                 return
             contents.append(resp.candidates[0].content)  # keeps thought signatures for the next turn
             if calls:
@@ -144,16 +145,18 @@ def answer_stream(intake: Intake) -> Iterator[dict]:
             break
     except errors.ClientError as exc:
         code = getattr(exc, "code", 400)
-        msg = {401: "The Gemini API key is invalid.", 403: "The Gemini API key is not allowed to use this model.",
-               429: "Gemini rate limit reached. Please retry in a minute."}.get(code, f"Gemini request error ({code}).")
+        log.warning("Gemini client error %s: %s", code, exc)
+        msg = {401: "The AI service key is invalid.", 403: "The AI service key is not allowed to use this model.",
+               429: "The AI service is busy. Please retry in a minute."}.get(code, f"AI service request error ({code}).")
         yield {"event": "error", "message": msg, "code": "auth" if code in (401, 403) else "api"}
         return
     except errors.ServerError as exc:
-        yield {"event": "error", "message": f"Gemini service error ({getattr(exc, 'code', 500)}).", "code": "api"}
+        log.warning("Gemini server error: %s", exc)
+        yield {"event": "error", "message": "AI service error. Showing offline results.", "code": "api"}
         return
     except Exception as exc:  # network errors etc.: the app falls back to offline answers
         log.exception("Gemini call failed")
-        yield {"event": "error", "message": f"Cannot reach Gemini ({type(exc).__name__}). Showing offline results.", "code": "offline"}
+        yield {"event": "error", "message": "Cannot reach the AI service. Showing offline results.", "code": "offline"}
         return
 
     if final_text is None:
