@@ -1,7 +1,7 @@
 """Scores the tool on eval/gold.jsonl and writes eval/results/latest.json + a markdown table.
 
 Usage (from the repo root):
-    python eval/run_eval.py              # uses AI mode if ANTHROPIC_API_KEY is set, else offline mode
+    python eval/run_eval.py              # AI mode if GEMINI_API_KEY or ANTHROPIC_API_KEY is set, else offline mode
     python eval/run_eval.py --offline    # force offline mode (calculators + keyword search)
     python eval/run_eval.py --only S01,S10
 
@@ -68,6 +68,8 @@ def main() -> None:
     if args.offline:
         os.environ["ANTHROPIC_API_KEY"] = ""
         os.environ["ANTHROPIC_AUTH_TOKEN"] = ""
+        os.environ["GEMINI_API_KEY"] = ""
+        os.environ["GOOGLE_API_KEY"] = ""
 
     from app import config
     from app.main import ask_events
@@ -93,7 +95,7 @@ def main() -> None:
 
     sample = [r for r in rows if r["id"].startswith("S")]
     summary = {
-        "mode": mode, "model": config.MODEL if mode == "ai" else None, "run_at": datetime.now().isoformat(timespec="seconds"),
+        "mode": mode, "provider": config.llm_provider(), "model": config.active_model(), "run_at": datetime.now().isoformat(timespec="seconds"),
         "total": len(sample), "correct": sum(r["ok"] for r in sample),
         "all_total": len(rows), "all_correct": sum(r["ok"] for r in rows),
         "label": f"{sum(r['ok'] for r in sample)}/{len(sample)} sample questions correct ({mode} mode)",

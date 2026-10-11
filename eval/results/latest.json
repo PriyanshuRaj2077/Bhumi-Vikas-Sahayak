@@ -1,8 +1,9 @@
 {
  "summary": {
   "mode": "offline",
+  "provider": null,
   "model": null,
-  "run_at": "2026-10-11T13:07:11",
+  "run_at": "2026-10-11T13:24:25",
   "total": 17,
   "correct": 17,
   "all_total": 30,
@@ -21,7 +22,7 @@
     "56"
    ],
    "answer": "- **Front open space: 3.6 m** (Rule 56(1)(a))",
-   "seconds": 0.5,
+   "seconds": 0.4,
    "usage": null
   },
   {

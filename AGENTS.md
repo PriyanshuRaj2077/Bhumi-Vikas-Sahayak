@@ -14,7 +14,8 @@ python verify.py                 # add --frontend to also build the React app (N
 ```
 - Prints one PASS/FAIL line per check and exits `0` only if all pass.
 - Writes **`verify_report.json`** (machine-readable): data integrity, secret scan, backend tests, offline accuracy eval, optional frontend build.
-- Expected today: `106 rules, 1 amendment`, `114 passed, 0 failed`, `17/17 sample questions (offline mode); all 30/30`.
+- Expected today: `106 rules, 1 amendment`, `124 passed, 0 failed`, `17/17 sample questions (offline mode); all 30/30`.
+- AI provider is chosen by `LLM_PROVIDER` (`gemini` | `anthropic` | `auto`) and the matching key (`GEMINI_API_KEY` / `ANTHROPIC_API_KEY`). With no key, everything still runs in offline mode.
 
 ## 3. Ask the tool directly (no server, JSON output)
 
@@ -41,7 +42,8 @@ Over HTTP (start with `cd backend && python -m uvicorn app.main:app --port 8000`
 | Field | Meaning |
 |---|---|
 | `status` | `answered` · `not_found` · `rule` (question was just "rule 56") · `error` |
-| `mode` | `ai` (Claude + calculators), `offline` (calculators + keyword search; no API key), `rules` (out-of-scope pre-filter) |
+| `mode` | `ai` (Gemini or Claude + calculators), `offline` (calculators + keyword search; no API key), `rules` (out-of-scope pre-filter) |
+| `provider` | `gemini` or `anthropic` when `mode = ai` |
 | `answer_md` | Short answer in the question's language; `[n]` markers refer to `citations[n-1]` |
 | `facts[]` | Calculator results: `label`, `display`, `value`, `unit`, `rule`, `sub_rule`, `page`, `row_label` (table row used), `quote` (verbatim rule text), `notes`, `edge_case`, `status` |
 | `citations[]` | `n`, `rule`, `sub_rule`, `title`, `page` (exact PDF page), `quote` (verbatim text), `pdf_url`, `amendment_id` |
@@ -67,7 +69,9 @@ backend/app/
   llm/documents.py            rulebook → 8 cached citable documents (+ amendment doc); maps citations back to rule/page
   llm/prompt.py               frozen system prompt (answer only from documents, tools for numbers, NOT_FOUND contract)
   llm/tools.py                11 strict JSON-schema tools exposed to Claude → calculators
-  llm/engine.py               streaming tool loop with Claude (claude-opus-5-5), prompt caching, refusal fallback
+  llm/engine.py               Claude engine: streaming tool loop, native Citations API, prompt caching, refusal fallback
+  llm/gemini_engine.py        Gemini engine (google-genai): rulebook in system instruction, function calling, JSON answer + quotes
+  llm/quotes.py               verifies model quotes word-for-word against rule text; drops fabricated quotes and their [n] markers
   verify.py                   trust layer: no citation ⇒ not_found; number check; amendment banners; version string
   offline.py                  no-AI answer path: intent → calculators + BM25 passage
   search.py                   BM25 keyword search over rules (English + Hindi glossary expansion)
@@ -77,7 +81,7 @@ backend/data/
   pdf/en.pdf, pdf/hi.pdf      official PDFs (source of truth)
   amendments.json             later amendments overlay (28-08-2026, Rule 2(5)(c))
   glossary_hi.json            Hindi ↔ English terms
-backend/tests/                114 tests: calculators (every row/boundary, quote+page match), engine (fake Claude client), API, CLI
+backend/tests/                124 tests: calculators (every row/boundary, quote+page match), engines (fake Claude and Gemini clients), API, CLI
 eval/gold.jsonl               17 official sample questions (S01–S17) + 13 extra counter cases (T01–T13) with expected rules/numbers
 eval/run_eval.py              scorer → eval/results/{offline,ai}.json + .md
 frontend/src/                 React 19 + Vite + Tailwind UI (Ask, Plot Check, Browse, PDF pane with highlight, print slip, EN/HI)
@@ -88,14 +92,14 @@ docs/                         research, implementation plan, backend architectur
 ## 5. Invariants (do not break these)
 
 1. **Every number from a rule table comes from `calculators/core.py`**, never from model text. Each table row carries a verbatim `source` snippet; `tests/test_calculators.py` asserts every snippet exists in the rule text and every page number matches.
-2. **No citation ⇒ `not_found`.** `verify.build_answer` enforces it; rule numbers shown in the UI come from citation/fact metadata.
+2. **No citation ⇒ `not_found`.** `verify.build_answer` enforces it; rule numbers shown in the UI come from citation/fact metadata. Model-supplied quotes (Gemini) are only shown if `llm/quotes.py` finds them verbatim in the rules.
 3. **Prompt prefix must stay byte-stable** (tools → system → documents) for caching: no timestamps or per-request data in `SYSTEM_PROMPT` or the documents.
 4. **No personal data stored.** `router.PERSONAL` masks phone numbers, emails and 12-digit IDs before logging.
 5. **No secrets in the repo.** API key only via `.env` / environment (`verify.py` scans for `sk-ant-…`).
 
 ## 6. Known limitations (stated honestly)
 
-- AI mode was **not run against the live API on the build machine** (no key available). Its loop, citation mapping and checks are tested with a fake client (`tests/test_engine.py`). Run `python verify.py --ai` with `ANTHROPIC_API_KEY` set to measure it.
+- AI mode (Gemini or Claude) was **not run against a live API on the build machine** (no key available). Both engines are tested with fake clients (`tests/test_gemini.py`, `tests/test_engine.py`). Run `python verify.py --ai` with `GEMINI_API_KEY` set to measure it.
 - Offline-mode keyword rules were tuned on the same eval questions, so its 30/30 is an upper bound.
 - The 28-08-2026 amendment text comes from a public summary (no Gazette number available).
 - The Bhopal Development Plan can override FAR/density (Rule 103); the app warns but has no DP zone data.

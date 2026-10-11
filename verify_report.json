@@ -1,6 +1,6 @@
 {
   "project": "bhumi-vikas-sahayak",
-  "run_at": "2026-10-11T13:07:16",
+  "run_at": "2026-10-11T13:24:29",
   "all_passed": true,
   "checks": [
     {
@@ -18,13 +18,13 @@
     {
       "name": "backend_tests",
       "passed": true,
-      "tests_passed": 114,
+      "tests_passed": 124,
       "tests_failed": 0,
-      "seconds": 2.5,
+      "seconds": 3.0,
       "tail": [
-        "........................................................................ [ 63%]",
-        "..........................................                               [100%]",
-        "114 passed in 1.78s"
+        "........................................................................ [ 58%]",
+        "....................................................                     [100%]",
+        "124 passed in 2.21s"
       ]
     },
     {
@@ -32,15 +32,16 @@
       "passed": true,
       "summary": {
         "mode": "offline",
+        "provider": null,
         "model": null,
-        "run_at": "2026-10-11T13:07:11",
+        "run_at": "2026-10-11T13:24:25",
         "total": 17,
         "correct": 17,
         "all_total": 30,
         "all_correct": 30,
         "label": "17/17 sample questions correct (offline mode)"
       },
-      "seconds": 4.3,
+      "seconds": 4.2,
       "failures": []
     },
     {
@@ -49,7 +50,7 @@
       "seconds": 4.0,
       "tail": [
         "",
-        "\u001b[32m✓ built in 1.08s\u001b[39m"
+        "\u001b[32m✓ built in 1.06s\u001b[39m"
       ]
     }
   ]

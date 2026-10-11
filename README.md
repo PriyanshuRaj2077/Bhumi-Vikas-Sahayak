@@ -8,9 +8,11 @@
 
 | | |
 |---|---|
-| ✅ `python verify.py` | data integrity · secret scan · **115 backend tests** · accuracy eval → `verify_report.json` |
+| ✅ `python verify.py` | data integrity · secret scan · **124 backend tests** · accuracy eval → `verify_report.json` |
+| 🧠 AI provider | **Google Gemini** (`gemini-3.8-flash`, default) or **Anthropic Claude**, chosen by one setting; every quote is verified word for word against the rules |
 | 🎯 Sample questions | **17 / 17** offline mode (see [Accuracy](#accuracy) for caveats); AI mode needs an API key to measure |
 | 🌐 Languages | English and Hindi (UI, questions, answers) |
+| 🚀 Deploy | One Docker container: Render / Railway / any VM, see [Deploy](#deploy) |
 | 🔌 Works without AI | Plot Check, rule browser and offline answers run with no API key or internet |
 | 🤖 For AI evaluators | Start with **[AGENTS.md](AGENTS.md)**; requirement-by-requirement proof in **[docs/REQUIREMENTS_TRACE.md](docs/REQUIREMENTS_TRACE.md)** |
 
@@ -25,14 +27,15 @@
 4. [Verify everything in one command](#verify-everything-in-one-command)
 5. [How it works](#how-it-works)
 6. [Accuracy](#accuracy)
-7. [Using it from the command line and the API](#using-it-from-the-command-line-and-the-api)
-8. [Project structure](#project-structure)
-9. [Configuration](#configuration)
-10. [What works and what doesn't](#what-works-and-what-doesnt)
-11. [Data sources](#data-sources)
-12. [Keeping the rules up to date](#keeping-the-rules-up-to-date)
-13. [Tech stack](#tech-stack)
-14. [Licence](#licence)
+7. [Deploy](#deploy)
+8. [Using it from the command line and the API](#using-it-from-the-command-line-and-the-api)
+9. [Project structure](#project-structure)
+10. [Configuration](#configuration)
+11. [What works and what doesn't](#what-works-and-what-doesnt)
+12. [Data sources](#data-sources)
+13. [Keeping the rules up to date](#keeping-the-rules-up-to-date)
+14. [Tech stack](#tech-stack)
+15. [Licence](#licence)
 
 ---
 
@@ -51,7 +54,7 @@ They need a **correct answer within a minute, with the rule number to show the c
 | | Feature | Why it matters at the counter |
 |---|---|---|
 | 💬 | **Ask in English or Hindi** → short answer in the same language, streamed in seconds | No reading 108 pages |
-| 📌 | **Every claim cites its rule, sub-rule, exact quote and PDF page** (Claude Citations API) | The clerk can show the citizen the rule |
+| 📌 | **Every claim cites its rule, sub-rule, exact quote and PDF page**. Quotes are checked word for word against the rule text; anything not found is removed | The clerk can show the citizen the rule |
 | 📄 | **Official PDF opens beside the answer on the cited page, with the table row highlighted** | Check against the source of truth in one click |
 | 🧮 | **Table numbers are computed by tested code**, not by the AI: setbacks, fees, FAR, height norms, electric-line clearances, validity, farm-house norms | Tables are where mistakes happen |
 | 🔍 | **Number check**: any number in the answer that isn't in a quote, a calculation or the question is flagged ⚠ | Catches a misread table |
@@ -81,7 +84,7 @@ Requirements: **Python 3.12+** and **Node 20+**.
 # 1. get the code
 git clone https://github.com/PriyanshuRaj2077/Bhumi-Vikas-Sahayak.git && cd Bhumi-Vikas-Sahayak
 # 2. configuration (optional: without a key the app runs in offline mode)
-cp .env.example .env          # then put ANTHROPIC_API_KEY=... in .env
+cp .env.example .env          # then put GEMINI_API_KEY=... in .env (or ANTHROPIC_API_KEY with LLM_PROVIDER=anthropic)
 # 3. install and build
 pip install -r backend/requirements.txt && (cd frontend && npm install && npm run build)
 # 4. run
@@ -89,7 +92,7 @@ cd backend && python -m uvicorn app.main:app --port 8000
 # 5. open http://localhost:8000
 ```
 
-**Docker:** `cp .env.example .env && docker compose up --build`, then open http://localhost:8000 (the Dockerfile was not tested on the build machine).
+**Docker:** `cp .env.example .env && docker compose up --build`, then open http://localhost:8000 (the Dockerfile was not tested on the build machine). To put it online, see [Deploy](#deploy).
 **Frontend dev mode:** run the backend on port 8000, then `cd frontend && npm run dev` (Vite proxies `/api` and `/pdf`).
 
 ## Verify everything in one command
@@ -97,13 +100,13 @@ cd backend && python -m uvicorn app.main:app --port 8000
 ```bash
 python verify.py              # ~10 s, no network
 python verify.py --frontend   # + type-check and build the React app
-python verify.py --ai         # + accuracy eval in AI mode (needs ANTHROPIC_API_KEY)
+python verify.py --ai         # + accuracy eval in AI mode (needs GEMINI_API_KEY or ANTHROPIC_API_KEY)
 ```
 Output on the build machine:
 ```
 PASS  data_integrity       106 rules, 1 amendment(s)
 PASS  no_secrets_in_repo
-PASS  backend_tests        115 passed, 0 failed
+PASS  backend_tests        124 passed, 0 failed
 PASS  eval_offline         17/17 sample questions correct (offline mode); all 30/30
 PASS  frontend_build
 
@@ -115,8 +118,8 @@ Browser test (uses the installed Microsoft Edge): `cd e2e && npm install && node
 
 ```
                  ┌──────────────────────────── FastAPI (one process) ─────────────────────────────┐
- Clerk ─▶ React ─┤ Router ─────────▶ Answer engine (Claude claude-opus-5-5)                        │
-   UI     (SSE)  │ • language EN/HI   • whole rulebook as 8 prompt-cached documents, Citations ON   │
+ Clerk ─▶ React ─┤ Router ─────────▶ Answer engine: Gemini (default) or Claude                     │
+   UI     (SSE)  │ • language EN/HI   • whole rulebook in context (cached); quotes verified/cited     │
                  │ • plot facts       • 11 strict tools ─▶ Calculators (Rules 17,21,23,42,52,53,   │
                  │   (sq m/sq ft,                                           56,61, 2(5)(c))      │
                  │    Hindi digits)  ─▶ Offline path (no key / no internet): calculators + BM25    │
@@ -127,8 +130,10 @@ Browser test (uses the installed Microsoft Edge): `cd e2e && npm install && node
 ```
 
 1. **The data is cleaned once at startup** (`backend/app/corpus.py`). The participant-pack JSONL has page headers, court case notes and amendment footnotes mixed into the rule text. Running headers (`Rule 56   M.P. Bhumi Vikas Rules, 2012   78`) are removed, and their page number gives an **exact character → PDF page map**. Court "COMMENTS" are split out as *court notes (not rules)*. Amendment footnotes become metadata. Inserted rules resolve to their parent (17-a → 17, 42-A → 42).
-2. **The whole book goes to Claude, no vector search.** The cleaned rules are ~270K characters, so they fit in one **prompt-cached** prefix. Nothing can be missed by retrieval, and each question re-reads the cache (≈ $0.02).
-3. **Citations, not claims.** With Claude's Citations API, every sentence comes back with exact character spans of the source. `llm/documents.py` maps each span to **rule, sub-rule (e.g. 56(2)(a)) and exact page**.
+2. **The whole book goes to the model, no vector search.** The cleaned rules are ~270K characters (about 75K tokens), so they fit in one stable, cacheable prefix. Nothing can be missed by retrieval.
+3. **Citations, not claims.** The two providers get the same guarantee in different ways:
+   - **Gemini** (`llm/gemini_engine.py`) must return its answer as JSON with `[n]` markers and quotes copied from the rules. `llm/quotes.py` searches each quote in the cleaned text, ignoring whitespace. A quote that isn't found is **deleted along with its marker**, with a warning. Found quotes are mapped to **rule, sub-rule and exact page** by the backend, never by the model.
+   - **Claude** (`llm/engine.py`) uses the native Citations API, which returns exact character spans. `llm/documents.py` maps them the same way.
 4. **Numbers from code.** The prompt forbids reading table numbers. Claude calls tools such as `rear_open_space(plot_area_sqm=150)`, backed by `calculators/core.py`. Every table row there carries a **verbatim snippet of the rule text**, and tests assert that each snippet exists and each page number matches.
 5. **Verifier** (`verify.py` in the backend):
    - no citations or a `NOT_FOUND` reply → "not covered" card;
@@ -146,11 +151,36 @@ The evaluation set is [`eval/gold.jsonl`](eval/gold.jsonl): the **17 official sa
 | Mode | Sample (17) | All (30) | Status |
 |---|---|---|---|
 | **Offline** (calculators + keyword search, no AI) | **17/17** | **30/30** | Measured. ⚠ Its keyword rules were tuned on these same questions, so this is an upper bound for new phrasings. |
-| **AI** (Claude + calculators + citations) | n/a | n/a | **Not measured yet**: the build machine had no API key. Run `python verify.py --ai`. |
+| **AI** (Gemini or Claude + calculators + verified quotes) | n/a | n/a | **Not measured yet**: the build machine had no API key. Set `GEMINI_API_KEY` and run `python verify.py --ai`. |
 
 Per-question results: [`eval/results/offline.md`](eval/results/offline.md) · machine-readable: `eval/results/latest.json`.
 
 Answer key highlights (checked against the PDF): 9.0 m road → **3.0 m** front (Rule 56(1)(a)); 10 m road → **3.6 m**; 150 sq m plot → **1.5 m** rear (56(2)(a)); fee goes by **built-up** slab, e.g. 250 sq m → **Rs 3,000** + Rs 250 application fee (21(3)(b), 21(2)(ii)); low-voltage line → **2.5 m vertical, 1.2 m horizontal** (52); farm house → **0.40 ha, FAR 0.10** (17); permission → **3 years + two 1-year renewals** (23); DP conflicts → **Rule 103**; the rules **don't fix a number of floors**, they limit height (12.5 m regime) and FAR (1.25).
+
+## Deploy
+
+The app is **one Docker container** that serves the API, the official PDFs and the built UI on one port (it reads `$PORT`). Nothing else is needed: no database server, no vector DB.
+
+### Render (free tier, easiest)
+1. https://render.com → sign in with GitHub → **New → Web Service** → pick this repository.
+2. Runtime: **Docker**. Instance: **Free**. Health check path: **`/healthz`**.
+3. **Environment variables**: `LLM_PROVIDER=gemini`, `GEMINI_API_KEY=<your key>`, `MAX_QUESTIONS_PER_DAY=300`.
+4. **Create Web Service**. After the build (~5 min) the app is live at `https://<name>.onrender.com`.
+5. Check `https://<name>.onrender.com/healthz` → `"rules": 106, "ai_available": true, "provider": "gemini"`.
+
+The free tier sleeps after 15 min without visitors (the first request then takes ~40 s), so open the link before a demo. The SQLite question log resets on restart.
+
+### Railway
+**New Project → Deploy from GitHub repo**, add the same variables under **Variables**, then **Settings → Networking → Generate Domain**.
+
+### Any Linux VM (e.g. a state data-centre server)
+```bash
+git clone https://github.com/PriyanshuRaj2077/Bhumi-Vikas-Sahayak.git && cd Bhumi-Vikas-Sahayak
+cp .env.example .env && nano .env            # set GEMINI_API_KEY
+docker compose up -d --build                  # serves on port 8000; put nginx/Caddy in front for HTTPS
+```
+
+Never commit the key: set it only in the host's environment settings or in `.env`.
 
 ## Using it from the command line and the API
 
@@ -209,12 +239,12 @@ The full field reference is in [AGENTS.md](AGENTS.md#answer-object-same-for-cli-
 │   │   ├── router.py                  language, plot facts, out-of-scope, PII masking
 │   │   ├── corpus.py                  rule cleaning, page map, sub-rules, aliases, amendments
 │   │   ├── calculators/core.py        rule tables + deterministic calculators
-│   │   ├── llm/                       documents (citations + caching), prompt, tools, engine
+│   │   ├── llm/                       documents, prompt, tools, engine.py (Claude), gemini_engine.py, quotes.py (quote verifier)
 │   │   ├── verify.py                  trust layer
 │   │   ├── offline.py, search.py      no-AI answers, BM25 search
 │   │   └── store.py                   SQLite log + feedback (no personal data)
 │   ├── data/                          rules JSONL, official PDFs, amendments.json, Hindi glossary
-│   └── tests/                         115 tests
+│   └── tests/                         124 tests
 ├── frontend/src/                      React UI (App, AskView, AnswerPanel, PlotCheck, BrowseRules, PdfPane, PrintSlip)
 ├── eval/                              gold questions, scorer, results
 ├── e2e/smoke.mjs                      browser test (Edge via Playwright)
@@ -227,12 +257,15 @@ Set in `.env` (see [.env.example](.env.example)):
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | (empty) | Enables AI answers. Without it the app runs offline |
-| `MODEL` | `claude-opus-5-5` | Answer model |
-| `EFFORT` | `low` | Thinking effort: lower is faster |
+| `LLM_PROVIDER` | `auto` | `gemini`, `anthropic`, or `auto` (whichever key is set; Anthropic first). No key at all → offline mode |
+| `GEMINI_API_KEY` | (empty) | Google AI Studio key (`GOOGLE_API_KEY` also accepted) |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | Gemini model ID |
+| `ANTHROPIC_API_KEY` | (empty) | Claude key (optional alternative) |
+| `MODEL` | `claude-opus-5-5` | Claude model ID |
+| `EFFORT` | `low` | Claude thinking effort: lower is faster |
 | `USE_FALLBACKS` | `1` | Server-side refusal fallback (Claude API only; set 0 on Bedrock/Vertex/Foundry) |
 | `PREWARM` | `0` | Re-warm the rulebook prompt cache every 4 min during office hours |
-| `MAX_QUESTIONS_PER_DAY` | `2000` | Cost guard for AI questions; beyond it, offline answers |
+| `MAX_QUESTIONS_PER_DAY` | `2000` (`.env.example` sets 300) | Cost guard for AI questions; beyond it, offline answers |
 
 ## What works and what doesn't
 
@@ -243,7 +276,8 @@ Set in `.env` (see [.env.example](.env.example)):
 - Plot Check, rule browser, offline mode, mobile layout, onboarding, keyboard shortcuts (`/` focus, `Enter` ask, `Esc` clear).
 
 **Doesn't, or not verified yet:**
-- **AI mode has not been run against the live API** (no key on the build machine). The tool loop, citation mapping, not-found gate and number check are tested with a fake Claude client. First step after cloning: `python verify.py --ai`.
+- **AI mode has not been run against a live API** (no key on the build machine), for Gemini or for Claude. Both engines are tested with fake clients: tool loop, quote/citation mapping, removal of fabricated quotes, not-found gate, number check and fallback to offline on errors (`tests/test_gemini.py`, `tests/test_engine.py`). First step after adding your key: `python verify.py --ai`, then check a few answers by hand.
+- Gemini support uses the `google-genai` SDK's `generate_content` function-calling loop. If Google changes that API, `llm/gemini_engine.py` is the only file to adapt.
 - Hindi answers are generated from the English text. Quotes stay in English (the official source). The Hindi PDF opens at the same page number, but its page alignment was not verified page by page.
 - Sub-rule labels are best-effort in very long rules (e.g. the Rule 2 definitions).
 - The 28-08-2026 amendment comes from a public summary without a Gazette number. An officer should verify it against the M.P. Rajpatra.
@@ -272,9 +306,9 @@ When a new consolidated copy is published, replace `backend/data/source/bhumi_vi
 
 ## Tech stack
 
-**Backend:** Python 3.12 · FastAPI · Anthropic Python SDK (Claude `claude-opus-5-5`: Citations, prompt caching, strict tool use, streaming) · SQLite · pytest
+**Backend:** Python 3.12 · FastAPI · Google `google-genai` SDK (Gemini function calling) · Anthropic Python SDK (Claude: Citations, prompt caching, strict tool use, streaming) · SQLite · pytest
 **Frontend:** React 19 · TypeScript · Vite · Tailwind CSS v4 · react-pdf (pdf.js) · lucide icons · Noto Sans + Noto Sans Devanagari
-**Testing:** pytest (115 tests) · offline/AI eval harness · Playwright with Microsoft Edge
+**Testing:** pytest (124 tests) · offline/AI eval harness · Playwright with Microsoft Edge
 
 ## Licence
 

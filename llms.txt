@@ -17,5 +17,7 @@
 - [backend/app/main.py](backend/app/main.py): pipeline `ask_events()` and HTTP API
 - [backend/app/calculators/core.py](backend/app/calculators/core.py): rule tables + calculators
 - [backend/app/verify.py](backend/app/verify.py): citation/number/amendment checks
-- [backend/app/llm/engine.py](backend/app/llm/engine.py): Claude tool loop
+- [backend/app/llm/gemini_engine.py](backend/app/llm/gemini_engine.py): Gemini engine (default provider)
+- [backend/app/llm/quotes.py](backend/app/llm/quotes.py): verifies model quotes word for word against the rules
+- [backend/app/llm/engine.py](backend/app/llm/engine.py): Claude engine (alternative provider)
 - [eval/gold.jsonl](eval/gold.jsonl): evaluation questions with expected rules and numbers

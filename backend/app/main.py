@@ -67,13 +67,17 @@ def ask_events(question: str, lang: str = "auto") -> Iterator[dict]:
         warnings.extend(it.fact_notes)
     use_ai = config.has_llm_credentials() and store.questions_today() < config.MAX_QUESTIONS_PER_DAY
     if use_ai:
-        from .llm.engine import answer_stream
+        if config.llm_provider() == "gemini":
+            from .llm.gemini_engine import answer_stream
+        else:
+            from .llm.engine import answer_stream
 
         for ev in answer_stream(it):
             if ev["event"] == "llm_done":
                 ans = build_answer(question=it.question, lang=it.lang, answer_text=ev["text"], citations=ev["citations"],
-                                   facts=ev["facts"], mode="ai", extra_warnings=warnings)
-                ans.update(id=qa_id, latency_ms=ev["latency_ms"], model=ev["model"], usage=ev["usage"])
+                                   facts=ev["facts"], mode="ai", extra_warnings=warnings + ev.get("warnings", []))
+                ans.update(id=qa_id, latency_ms=ev["latency_ms"], model=ev["model"], usage=ev["usage"],
+                           provider=config.llm_provider())
                 store.log_answer(qa_id, it.question, ans, ev["usage"], ev["model"], ev["latency_ms"])
                 yield {"event": "final", **ans}
                 return
@@ -85,7 +89,7 @@ def ask_events(question: str, lang: str = "auto") -> Iterator[dict]:
     else:
         if not config.has_llm_credentials():
             warnings.append("एआई उत्तर बंद हैं (API कुंजी नहीं है); गणना परिणाम और संबंधित नियम दिखाए गए हैं।" if it.lang == "hi"
-                            else "AI answers are off (no API key configured); showing calculator results and the matching rules.")
+                            else "AI answers are off (no GEMINI_API_KEY or ANTHROPIC_API_KEY configured); showing calculator results and the matching rules.")
         else:
             warnings.append("आज की एआई प्रश्न सीमा पूरी हो गई; ऑफ़लाइन परिणाम दिखाए गए हैं।" if it.lang == "hi"
                             else "Daily AI question limit reached; showing offline results.")
@@ -210,7 +214,8 @@ def meta():
         "rules_version": corpus.rules_version(),
         "amendments": corpus.amendments(),
         "ai_available": config.has_llm_credentials(),
-        "model": config.MODEL,
+        "provider": config.llm_provider(),
+        "model": config.active_model(),
         "eval": eval_summary,
         "stats": store.stats(),
         "recent": store.recent(),
@@ -232,7 +237,8 @@ def feedback(body: FeedbackIn):
 
 @app.get("/healthz")
 def healthz():
-    return {"ok": True, "rules": len(corpus.rules()), "ai_available": config.has_llm_credentials()}
+    return {"ok": True, "rules": len(corpus.rules()), "ai_available": config.has_llm_credentials(),
+            "provider": config.llm_provider(), "model": config.active_model()}
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +269,7 @@ else:
 
 def _startup():
     corpus.rules()  # load and clean once
-    if config.OFFICE_PREWARM and config.has_llm_credentials():
+    if config.OFFICE_PREWARM and config.llm_provider() == "anthropic":
         from .llm.engine import prewarm
 
         def loop():

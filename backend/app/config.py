@@ -38,8 +38,32 @@ PREWARM_SECONDS = int(os.environ.get("PREWARM_SECONDS", "240"))
 OFFICE_PREWARM = os.environ.get("PREWARM", "0") == "1"
 
 
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
+
+
+def gemini_api_key() -> str:
+    return os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY") or ""
+
+
+def llm_provider() -> str | None:
+    """Which AI answers questions: LLM_PROVIDER=anthropic|gemini|auto (auto picks whichever key is set,
+    preferring Anthropic). Returns None when no key is configured (offline mode)."""
+    choice = os.environ.get("LLM_PROVIDER", "auto").strip().lower()
+    has_anthropic = bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
+    has_gemini = bool(gemini_api_key())
+    if choice in ("gemini", "google"):
+        return "gemini" if has_gemini else None
+    if choice in ("anthropic", "claude"):
+        return "anthropic" if has_anthropic else None
+    return "anthropic" if has_anthropic else ("gemini" if has_gemini else None)
+
+
+def active_model() -> str | None:
+    return {"anthropic": MODEL, "gemini": GEMINI_MODEL}.get(llm_provider() or "")
+
+
 def has_llm_credentials() -> bool:
-    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
+    return llm_provider() is not None
 
 
 RULES_BASE_VERSION = "Consolidated to 06-03-2025"

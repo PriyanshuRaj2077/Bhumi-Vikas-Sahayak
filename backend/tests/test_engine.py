@@ -62,6 +62,7 @@ def fake(monkeypatch):
         fc = FakeClient(turns)
         monkeypatch.setattr(engine, "_client", fc)
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+        monkeypatch.setenv("LLM_PROVIDER", "anthropic")
         return fc
     return install
 
@@ -135,6 +136,8 @@ def test_sqft_conversion():
 def test_offline_far_word_is_not_floor_area_ratio(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
     final = list(ask_events("How far must my balcony stay from a low-voltage overhead electric line?"))[-1]
     keys = {f["key"] for f in final["facts"]}
     assert keys == {"electric_clearance"}

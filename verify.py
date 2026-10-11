@@ -2,7 +2,7 @@
 
     python verify.py                 # backend tests + offline accuracy eval + data integrity checks (about 10 s, no network)
     python verify.py --frontend      # also type-check and build the React app (needs Node 20+)
-    python verify.py --ai            # also run the eval in AI mode (needs ANTHROPIC_API_KEY; costs about $1)
+    python verify.py --ai            # also run the eval in AI mode (needs GEMINI_API_KEY or ANTHROPIC_API_KEY)
 
 Exit code 0 means every selected check passed.
 """
