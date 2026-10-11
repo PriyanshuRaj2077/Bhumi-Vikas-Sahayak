@@ -1,0 +1,10 @@
+.env
+var/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+frontend/dist/
+e2e/screenshots/
+eval/results/*.json
+!eval/results/latest.json

@@ -1,0 +1,283 @@
+# Bhumi Vikas Sahayak (भूमि विकास सहायक)
+
+**Ask the Bhopal building rulebook and get an answer you can trust: rule number, exact text, PDF page.**
+
+> **Track 1 · Claude Impact Lab × Cerebras Café Compute, Bhopal · 11 Oct 2026**
+> **Team:** _<team name>_ · **Members:** _<names>_
+> **The one user we built for:** a building-permission clerk at the **Bhopal Municipal Corporation** counter.
+
+| | |
+|---|---|
+| ✅ `python verify.py` | data integrity · secret scan · **115 backend tests** · accuracy eval → `verify_report.json` |
+| 🎯 Sample questions | **17 / 17** offline mode (see [Accuracy](#accuracy) for caveats); AI mode needs an API key to measure |
+| 🌐 Languages | English and Hindi (UI, questions, answers) |
+| 🔌 Works without AI | Plot Check, rule browser and offline answers run with no API key or internet |
+| 🤖 For AI evaluators | Start with **[AGENTS.md](AGENTS.md)**; requirement-by-requirement proof in **[docs/REQUIREMENTS_TRACE.md](docs/REQUIREMENTS_TRACE.md)** |
+
+![Answer with rule chips and the official PDF page highlighted](docs/screenshots/answer.png)
+
+---
+
+## Contents
+1. [The problem](#the-problem)
+2. [What the tool does](#what-the-tool-does)
+3. [Quick start (5 steps)](#quick-start-5-steps)
+4. [Verify everything in one command](#verify-everything-in-one-command)
+5. [How it works](#how-it-works)
+6. [Accuracy](#accuracy)
+7. [Using it from the command line and the API](#using-it-from-the-command-line-and-the-api)
+8. [Project structure](#project-structure)
+9. [Configuration](#configuration)
+10. [What works and what doesn't](#what-works-and-what-doesnt)
+11. [Data sources](#data-sources)
+12. [Keeping the rules up to date](#keeping-the-rules-up-to-date)
+13. [Tech stack](#tech-stack)
+14. [Licence](#licence)
+
+---
+
+## The problem
+
+Every house, shop or extra floor in Bhopal must follow the **MP Bhumi Vikas Rules, 2012**: 108 pages and 105 numbered rules. The numbers people ask about most (setbacks, fees, floor-area limits) sit in **tables that are easy to misread**. The rules **keep changing**: the consolidated copy stops on 6 Mar 2025, and Rule 2(5)(c) changed again on **28 Aug 2026**. Citizens ask in **English and Hindi**, and the official Hindi PDF uses an old font that copies out as garbage.
+
+A clerk at the counter hears the same questions all day:
+
+> *"My plot is 200 sq m on a 9 m road. How much gap do I leave at the front, how many floors can I build, and what fee do I pay?"*
+
+They need a **correct answer within a minute, with the rule number to show the citizen**, and the tool must **say "not found" instead of guessing** when the rules are silent.
+
+## What the tool does
+
+| | Feature | Why it matters at the counter |
+|---|---|---|
+| 💬 | **Ask in English or Hindi** → short answer in the same language, streamed in seconds | No reading 108 pages |
+| 📌 | **Every claim cites its rule, sub-rule, exact quote and PDF page** (Claude Citations API) | The clerk can show the citizen the rule |
+| 📄 | **Official PDF opens beside the answer on the cited page, with the table row highlighted** | Check against the source of truth in one click |
+| 🧮 | **Table numbers are computed by tested code**, not by the AI: setbacks, fees, FAR, height norms, electric-line clearances, validity, farm-house norms | Tables are where mistakes happen |
+| 🔍 | **Number check**: any number in the answer that isn't in a quote, a calculation or the question is flagged ⚠ | Catches a misread table |
+| 🚫 | **"Not covered by these rules"** for property tax, land rates, registry… with where to go instead | Never invents a rule |
+| 🗓 | **Rules-version badge + amendment banner** (28-08-2026, Rule 2(5)(c): plots ≤ 500 sq m) | The clerk knows which version the answer uses |
+| 🏠 | **Plot Check**: type plot area, road width, frontage, height and use → all numbers instantly, **no AI needed** | The most common counter question, answered offline |
+| 📚 | **Browse all 106 rules**: clean text by PDF page, amendment notes, court notes kept separate | For when the clerk wants to read |
+| 🖨 | **Printable A5 rule slip** for the citizen (no personal data) | The citizen leaves with the rule numbers |
+| 🛡 | Personal data (phones, emails, IDs) masked before logging; disclaimer on every answer | Safe for a government counter |
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/plot-check.png" alt="Plot Check"/><br/><sub>Plot Check: every number with its rule, table row and page</sub></td>
+<td width="50%"><img src="docs/screenshots/hindi.png" alt="Hindi"/><br/><sub>Hindi question → Hindi answer, official English quote, PDF page</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/not-found.png" alt="Not found"/><br/><sub>Honest "not covered" answer for property tax</sub></td>
+<td><img src="docs/screenshots/mobile.png" alt="Mobile" width="45%"/><br/><sub>Also works on a phone or tablet</sub></td>
+</tr>
+</table>
+
+## Quick start (5 steps)
+
+Requirements: **Python 3.12+** and **Node 20+**.
+
+```bash
+# 1. get the code
+git clone https://github.com/PriyanshuRaj2077/Bhumi-Vikas-Sahayak.git && cd Bhumi-Vikas-Sahayak
+# 2. configuration (optional: without a key the app runs in offline mode)
+cp .env.example .env          # then put ANTHROPIC_API_KEY=... in .env
+# 3. install and build
+pip install -r backend/requirements.txt && (cd frontend && npm install && npm run build)
+# 4. run
+cd backend && python -m uvicorn app.main:app --port 8000
+# 5. open http://localhost:8000
+```
+
+**Docker:** `cp .env.example .env && docker compose up --build`, then open http://localhost:8000 (the Dockerfile was not tested on the build machine).
+**Frontend dev mode:** run the backend on port 8000, then `cd frontend && npm run dev` (Vite proxies `/api` and `/pdf`).
+
+## Verify everything in one command
+
+```bash
+python verify.py              # ~10 s, no network
+python verify.py --frontend   # + type-check and build the React app
+python verify.py --ai         # + accuracy eval in AI mode (needs ANTHROPIC_API_KEY)
+```
+Output on the build machine:
+```
+PASS  data_integrity       106 rules, 1 amendment(s)
+PASS  no_secrets_in_repo
+PASS  backend_tests        115 passed, 0 failed
+PASS  eval_offline         17/17 sample questions correct (offline mode); all 30/30
+PASS  frontend_build
+
+ALL CHECKS PASSED -> verify_report.json
+```
+Browser test (uses the installed Microsoft Edge): `cd e2e && npm install && node smoke.mjs` (server running). It checks the headline answer, the PDF page highlight, not-found, Hindi, Plot Check, the amendment banner, the mobile layout and that there are no console errors.
+
+## How it works
+
+```
+                 ┌──────────────────────────── FastAPI (one process) ─────────────────────────────┐
+ Clerk ─▶ React ─┤ Router ─────────▶ Answer engine (Claude claude-opus-5-5)                        │
+   UI     (SSE)  │ • language EN/HI   • whole rulebook as 8 prompt-cached documents, Citations ON   │
+                 │ • plot facts       • 11 strict tools ─▶ Calculators (Rules 17,21,23,42,52,53,   │
+                 │   (sq m/sq ft,                                           56,61, 2(5)(c))      │
+                 │    Hindi digits)  ─▶ Offline path (no key / no internet): calculators + BM25    │
+                 │ • out-of-scope                                                                 │
+                 │ • PII masking     ─▶ Verifier: no citation ⇒ NOT FOUND · numbers must appear in │
+                 │                      quote / calculation / question · amendment banner · version│
+                 └────────────────────────────────────────────────────────────────────────────────┘
+```
+
+1. **The data is cleaned once at startup** (`backend/app/corpus.py`). The participant-pack JSONL has page headers, court case notes and amendment footnotes mixed into the rule text. Running headers (`Rule 56   M.P. Bhumi Vikas Rules, 2012   78`) are removed, and their page number gives an **exact character → PDF page map**. Court "COMMENTS" are split out as *court notes (not rules)*. Amendment footnotes become metadata. Inserted rules resolve to their parent (17-a → 17, 42-A → 42).
+2. **The whole book goes to Claude, no vector search.** The cleaned rules are ~270K characters, so they fit in one **prompt-cached** prefix. Nothing can be missed by retrieval, and each question re-reads the cache (≈ $0.02).
+3. **Citations, not claims.** With Claude's Citations API, every sentence comes back with exact character spans of the source. `llm/documents.py` maps each span to **rule, sub-rule (e.g. 56(2)(a)) and exact page**.
+4. **Numbers from code.** The prompt forbids reading table numbers. Claude calls tools such as `rear_open_space(plot_area_sqm=150)`, backed by `calculators/core.py`. Every table row there carries a **verbatim snippet of the rule text**, and tests assert that each snippet exists and each page number matches.
+5. **Verifier** (`verify.py` in the backend):
+   - no citations or a `NOT_FOUND` reply → "not covered" card;
+   - numbers not found in a quote or calculation → ⚠ flag and `confidence: check`;
+   - a cited clause changed by a later amendment → amber banner;
+   - every answer carries the rules version and a disclaimer.
+6. **Offline fallback.** With no API key or no internet, the same calculators run on detected intents, plus BM25 keyword search (with a Hindi glossary) returns the best rule passage.
+
+More detail: [docs/03-backend-architecture.md](docs/03-backend-architecture.md) · UX: [docs/04-frontend-design.md](docs/04-frontend-design.md) · Research and answer key: [docs/01-research.md](docs/01-research.md)
+
+## Accuracy
+
+The evaluation set is [`eval/gold.jsonl`](eval/gold.jsonl): the **17 official sample questions** (S01–S17, including 2 in Hindi and 2 that must be "not found") plus **13 extra counter cases** (T01–T13: slab boundaries, commercial fees, 11 kV lines, tall buildings on small plots, Hindi). Each item states the expected rules, the exact numbers, the numbers that would be **wrong** (e.g. 3.6 m for a 9 m road) and, where relevant, the expected amendment banner.
+
+| Mode | Sample (17) | All (30) | Status |
+|---|---|---|---|
+| **Offline** (calculators + keyword search, no AI) | **17/17** | **30/30** | Measured. ⚠ Its keyword rules were tuned on these same questions, so this is an upper bound for new phrasings. |
+| **AI** (Claude + calculators + citations) | n/a | n/a | **Not measured yet**: the build machine had no API key. Run `python verify.py --ai`. |
+
+Per-question results: [`eval/results/offline.md`](eval/results/offline.md) · machine-readable: `eval/results/latest.json`.
+
+Answer key highlights (checked against the PDF): 9.0 m road → **3.0 m** front (Rule 56(1)(a)); 10 m road → **3.6 m**; 150 sq m plot → **1.5 m** rear (56(2)(a)); fee goes by **built-up** slab, e.g. 250 sq m → **Rs 3,000** + Rs 250 application fee (21(3)(b), 21(2)(ii)); low-voltage line → **2.5 m vertical, 1.2 m horizontal** (52); farm house → **0.40 ha, FAR 0.10** (17); permission → **3 years + two 1-year renewals** (23); DP conflicts → **Rule 103**; the rules **don't fix a number of floors**, they limit height (12.5 m regime) and FAR (1.25).
+
+## Using it from the command line and the API
+
+**CLI** (prints JSON; add `--text` to `ask` for plain text):
+```bash
+cd backend
+python -m app.cli ask "My plot is 200 sq m on a 9 m road. Front gap, floors and fee?"
+python -m app.cli ask "बिल्डिंग परमिशन की फीस कितनी है और किस नियम में लिखी है?"
+python -m app.cli plot-check --plot 200 --road 9 --frontage 10 --height 10 --type semi_detached
+python -m app.cli calc electric_clearance '{"line_type": "high_upto_33kv"}'
+python -m app.cli rule 17-a
+python -m app.cli search "lift"
+python -m app.cli tools      # JSON schemas of all calculator tools
+python -m app.cli meta
+```
+
+**HTTP API** (interactive docs at `http://localhost:8000/docs`):
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/ask/json` | `{"question", "lang": "auto"\|"en"\|"hi"}` → one JSON answer (best for scripts and agents) |
+| POST | `/api/ask` | Same pipeline as a Server-Sent Events stream: `start`, `delta`, `tool`, `final` (used by the UI) |
+| POST | `/api/plot-check` | Plot facts → all numbers (no AI) |
+| POST | `/api/calc` | `{"name", "args"}` → run one calculator |
+| GET | `/api/rules`, `/api/rules/{id}` | List rules / one rule (aliases like `17-a` work) |
+| GET | `/api/search?q=` | Keyword search |
+| GET | `/api/meta` | Rules version, amendments, AI availability, eval summary, recent questions |
+| POST | `/api/feedback` | 👍/👎 on an answer |
+| GET | `/pdf/en`, `/pdf/hi` | Official PDFs |
+| GET | `/healthz` | Liveness |
+
+Example answer (abridged):
+```json
+{
+  "status": "answered", "mode": "ai", "lang": "en",
+  "answer_md": "Leave at least 1.5 m at the rear. [1]",
+  "facts": [{"label": "Rear open space", "display": "1.5 m", "rule": "56", "sub_rule": "(2)(a)", "page": 78,
+             "row_label": "Above 40.00 and up to 150.00 sq m", "quote": "2.     Above 40.00 and up to 150.00   1.50"}],
+  "citations": [{"n": 1, "rule": "56", "sub_rule": "(2)(a)", "page": 78, "quote": "…", "pdf_url": "/pdf/en#page=78"}],
+  "amendments": [], "warnings": [], "unverified_numbers": [], "confidence": "high",
+  "rules_version": "Consolidated to 06-03-2025 + 1 later amendment: 28-08-2026 (Rule 2(5)(c))",
+  "disclaimer": "Reference aid only, not legal advice. The final decision rests with the Authority."
+}
+```
+The full field reference is in [AGENTS.md](AGENTS.md#answer-object-same-for-cli-ask-apiaskjson-and-the-final-sse-event).
+
+## Project structure
+
+```
+├── AGENTS.md / CLAUDE.md / llms.txt   guides for AI agents
+├── verify.py                          one-command verification → verify_report.json
+├── backend/
+│   ├── app/
+│   │   ├── main.py                    FastAPI app + ask pipeline (ask_events / ask_once)
+│   │   ├── cli.py                     JSON command-line interface
+│   │   ├── router.py                  language, plot facts, out-of-scope, PII masking
+│   │   ├── corpus.py                  rule cleaning, page map, sub-rules, aliases, amendments
+│   │   ├── calculators/core.py        rule tables + deterministic calculators
+│   │   ├── llm/                       documents (citations + caching), prompt, tools, engine
+│   │   ├── verify.py                  trust layer
+│   │   ├── offline.py, search.py      no-AI answers, BM25 search
+│   │   └── store.py                   SQLite log + feedback (no personal data)
+│   ├── data/                          rules JSONL, official PDFs, amendments.json, Hindi glossary
+│   └── tests/                         115 tests
+├── frontend/src/                      React UI (App, AskView, AnswerPanel, PlotCheck, BrowseRules, PdfPane, PrintSlip)
+├── eval/                              gold questions, scorer, results
+├── e2e/smoke.mjs                      browser test (Edge via Playwright)
+└── docs/                              research, plan, architecture, UX, requirements trace, screenshots
+```
+
+## Configuration
+
+Set in `.env` (see [.env.example](.env.example)):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | (empty) | Enables AI answers. Without it the app runs offline |
+| `MODEL` | `claude-opus-5-5` | Answer model |
+| `EFFORT` | `low` | Thinking effort: lower is faster |
+| `USE_FALLBACKS` | `1` | Server-side refusal fallback (Claude API only; set 0 on Bedrock/Vertex/Foundry) |
+| `PREWARM` | `0` | Re-warm the rulebook prompt cache every 4 min during office hours |
+| `MAX_QUESTIONS_PER_DAY` | `2000` | Cost guard for AI questions; beyond it, offline answers |
+
+## What works and what doesn't
+
+**Works (tested):**
+- Ask (EN/HI) with streamed answers, citations, rule badges, PDF page + highlight, "how the numbers were worked out", copy, print slip, feedback.
+- Calculators for Rules 17/17-a, 21 (all fee items, high-rise, development fee), 23, 42 Tables 4 and 5, 52, 53(1), 56(1)–(3), 61 Table 8, and the 2(5)(c) amendment, with every row and boundary unit-tested against the rule text.
+- Not-found handling, version badge, amendment banner (only when the amended clause is involved), PII masking.
+- Plot Check, rule browser, offline mode, mobile layout, onboarding, keyboard shortcuts (`/` focus, `Enter` ask, `Esc` clear).
+
+**Doesn't, or not verified yet:**
+- **AI mode has not been run against the live API** (no key on the build machine). The tool loop, citation mapping, not-found gate and number check are tested with a fake Claude client. First step after cloning: `python verify.py --ai`.
+- Hindi answers are generated from the English text. Quotes stay in English (the official source). The Hindi PDF opens at the same page number, but its page alignment was not verified page by page.
+- Sub-rule labels are best-effort in very long rules (e.g. the Rule 2 definitions).
+- The 28-08-2026 amendment comes from a public summary without a Gazette number. An officer should verify it against the M.P. Rajpatra.
+- The Bhopal Development Plan can override FAR and density (Rule 103). The app warns but has no DP zone data.
+- Offline answers give calculator results and the best rule passage, not a written explanation.
+- The Docker setup was not tested (no Docker on the build machine).
+
+## Data sources
+
+| Data | Source |
+|---|---|
+| Rules JSONL, full text by page, sample questions | Participant pack: https://github.com/Vishal4742/bhopal-impact-lab-2026-problem-statements (originally https://github.com/Laaaaksh/bhopal-impact-lab-2026) |
+| MP Bhumi Vikas Rules 2012, consolidated to 06-03-2025, English (source of truth) | https://mptownplan.gov.in/NewsPDF/bvn06032025E.pdf |
+| Same, Hindi | https://mptownplan.gov.in/NewsPDF/bvn06032025H.pdf |
+| **Extra:** 28-08-2026 amendment to Rule 2(5)(c) | https://teamleaseregtech.com/updates/article/59469/government-of-madhya-pradesh-amendment-to-land-development-rules |
+
+No personal data is used or stored. There is no connection to any government system.
+
+## Keeping the rules up to date
+
+1. Add the amendment to [`backend/data/amendments.json`](backend/data/amendments.json): rule, clause, date, source, text, English and Hindi summary.
+2. If a table changed, update [`backend/app/calculators/core.py`](backend/app/calculators/core.py) and its test.
+3. Run `python verify.py`. The version badge, banners and AI documents update automatically.
+
+When a new consolidated copy is published, replace `backend/data/source/bhumi_vikas_rules.jsonl` and the PDFs, then run `python verify.py`. The snippet tests will flag any table row whose text changed.
+
+## Tech stack
+
+**Backend:** Python 3.12 · FastAPI · Anthropic Python SDK (Claude `claude-opus-5-5`: Citations, prompt caching, strict tool use, streaming) · SQLite · pytest
+**Frontend:** React 19 · TypeScript · Vite · Tailwind CSS v4 · react-pdf (pdf.js) · lucide icons · Noto Sans + Noto Sans Devanagari
+**Testing:** pytest (115 tests) · offline/AI eval harness · Playwright with Microsoft Edge
+
+## Licence
+
+[MIT](LICENSE). Offered to the Government of Madhya Pradesh through MPSeDC.
+
+**Reference aid only, not legal advice. The final decision rests with the Authority.**

@@ -1,0 +1,29 @@
+{
+  "_note": "Hindi term -> English search terms (offline search) and the fixed Hindi wording used in answers.",
+  "terms": [
+    {"hi": ["आगे", "सामने", "फ्रंट"], "en": ["front", "open space", "street"], "answer_hi": "सामने खुला स्थान (फ्रंट एमओएस)"},
+    {"hi": ["पीछे", "रियर"], "en": ["rear", "open space"], "answer_hi": "पीछे खुला स्थान (रियर एमओएस)"},
+    {"hi": ["बगल", "साइड"], "en": ["side", "open space"], "answer_hi": "बगल का खुला स्थान"},
+    {"hi": ["खाली जगह", "खुली जगह", "जगह खाली", "खुला स्थान", "एमओएस"], "en": ["open space", "marginal"], "answer_hi": "खुला स्थान"},
+    {"hi": ["सड़क", "रोड", "मार्ग", "गली"], "en": ["street", "road", "width"], "answer_hi": "सड़क"},
+    {"hi": ["प्लॉट", "भूखंड", "भूखण्ड"], "en": ["plot", "area"], "answer_hi": "भूखंड"},
+    {"hi": ["फीस", "शुल्क"], "en": ["fees", "fee", "permission fee"], "answer_hi": "शुल्क"},
+    {"hi": ["बिल्डिंग परमिशन", "भवन अनुज्ञा", "भवन अनुमति", "नक्शा पास"], "en": ["building permission"], "answer_hi": "भवन अनुज्ञा"},
+    {"hi": ["विकास अनुज्ञा", "विकास अनुमति"], "en": ["development permission"], "answer_hi": "विकास अनुज्ञा"},
+    {"hi": ["मंजिल", "मंज़िल", "फ्लोर"], "en": ["floor area ratio", "height", "floors"], "answer_hi": "मंज़िल"},
+    {"hi": ["ऊँचाई", "ऊंचाई"], "en": ["height"], "answer_hi": "ऊँचाई"},
+    {"hi": ["एफएआर", "तल क्षेत्र अनुपात"], "en": ["floor area ratio", "FAR"], "answer_hi": "तल क्षेत्र अनुपात (एफएआर)"},
+    {"hi": ["फार्म हाउस", "फार्महाउस"], "en": ["farm house"], "answer_hi": "फार्म हाउस"},
+    {"hi": ["बिजली", "विद्युत"], "en": ["electric lines", "voltage"], "answer_hi": "बिजली लाइन"},
+    {"hi": ["बालकनी", "छज्जा"], "en": ["balcony", "projection"], "answer_hi": "बालकनी"},
+    {"hi": ["लिफ्ट"], "en": ["lifts"], "answer_hi": "लिफ्ट"},
+    {"hi": ["वैधता", "मान्य", "नवीनीकरण", "रिन्यू"], "en": ["duration of sanction", "revalidation"], "answer_hi": "वैधता"},
+    {"hi": ["वास्तुविद", "आर्किटेक्ट", "इंजीनियर"], "en": ["architect", "engineer", "licensing"], "answer_hi": "वास्तुविद"},
+    {"hi": ["दस्तावेज", "दस्तावेज़", "कागजात"], "en": ["documents", "application", "information accompanying"], "answer_hi": "दस्तावेज़"},
+    {"hi": ["पार्किंग"], "en": ["parking"], "answer_hi": "पार्किंग"},
+    {"hi": ["बेसमेंट", "तलघर"], "en": ["basement"], "answer_hi": "तलघर (बेसमेंट)"},
+    {"hi": ["सीढ़ी"], "en": ["staircase"], "answer_hi": "सीढ़ी"},
+    {"hi": ["विकास योजना", "मास्टर प्लान"], "en": ["development plan"], "answer_hi": "विकास योजना"},
+    {"hi": ["वर्ग मीटर", "वर्गमीटर"], "en": ["square meters"], "answer_hi": "वर्ग मीटर"}
+  ]
+}

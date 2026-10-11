@@ -1,0 +1,30 @@
+{"id": "S01", "q": "My house faces a 10 m wide street and will be 9 m tall. How much open space do I leave at the front?", "expect_status": "answered", "expect_rules": ["56"], "expect_numbers": ["3.6"], "must_not": ["3.0 m", "4.5"]}
+{"id": "S02", "q": "I want a farm house on agricultural land. What is the minimum plot size and the maximum FAR?", "expect_status": "answered", "expect_rules": ["17"], "expect_numbers": ["0.40", "0.10"], "must_not": []}
+{"id": "S03", "q": "My development permission was granted in 2023. How long does it stay valid, and how many times can I renew it?", "expect_status": "answered", "expect_rules": ["23"], "expect_numbers": ["3"], "expect_any_text": ["two", "2 "], "must_not": []}
+{"id": "S04", "q": "I applied for building permission and the authority has not replied. What happens if they miss the deadline?", "expect_status": "answered", "expect_rules": ["28"], "expect_numbers": [], "expect_any_text": ["deemed", "Deemed"], "must_not": []}
+{"id": "S05", "q": "How far must my balcony stay from a low-voltage overhead electric line, vertically and horizontally?", "expect_status": "answered", "expect_rules": ["52"], "expect_numbers": ["2.5", "1.2"], "must_not": ["3.7"]}
+{"id": "S06", "q": "Who is allowed to sign and submit my building plans?", "expect_status": "answered", "expect_rules": ["18"], "expect_numbers": [], "expect_any_text": ["architect", "Architect"], "must_not": []}
+{"id": "S07", "q": "What documents go with an application for building permission?", "expect_status": "answered", "expect_rules_any": ["14", "16"], "expect_numbers": [], "must_not": []}
+{"id": "S08", "q": "What is the fee for building permission for a residential house?", "expect_status": "answered", "expect_rules": ["21"], "expect_numbers": [], "expect_any_text": ["750", "built-up", "built up"], "must_not": []}
+{"id": "S09", "q": "Can I change my plan after it is sanctioned?", "expect_status": "answered", "expect_rules": ["24"], "expect_numbers": [], "must_not": []}
+{"id": "S10", "q": "What is the minimum rear open space for a 150 sq m residential plot?", "expect_status": "answered", "expect_rules": ["56"], "expect_numbers": ["1.5"], "must_not": ["2.5 m"]}
+{"id": "S11", "q": "Do I need separate development permission for a 300 sq m plot that matches the Development Plan?", "expect_status": "answered", "expect_rules": ["2"], "expect_numbers": [], "expect_amendment": "2026-08-28-r2-5-c", "must_not": []}
+{"id": "S12", "q": "Which rule decides what happens when the Development Plan and these rules disagree?", "expect_status": "answered", "expect_rules": ["103"], "expect_numbers": [], "must_not": []}
+{"id": "S13", "q": "What are the rules for lifts in a building taller than 15 m?", "expect_status": "answered", "expect_rules": ["83"], "expect_numbers": ["12.5"], "must_not": []}
+{"id": "S14", "q": "मेरा प्लॉट 200 वर्ग मीटर का है और सामने 9 मीटर चौड़ी सड़क है। आगे कितनी जगह खाली छोड़नी होगी?", "lang": "hi", "expect_status": "answered", "expect_rules": ["56"], "expect_numbers": ["3.0"], "must_not": ["3.6"]}
+{"id": "S15", "q": "बिल्डिंग परमिशन की फीस कितनी है और किस नियम में लिखी है?", "lang": "hi", "expect_status": "answered", "expect_rules": ["21"], "expect_numbers": [], "must_not": []}
+{"id": "S16", "q": "How do I pay my property tax online?", "expect_status": "not_found"}
+{"id": "S17", "q": "What is the current market rate for land in Kolar Road, Bhopal?", "expect_status": "not_found"}
+{"id": "T01", "q": "My plot is 200 sq m on a 9 m road. How much gap do I leave at the front, how many floors can I build, and what fee do I pay?", "expect_status": "answered", "expect_rules": ["56", "21"], "expect_numbers": ["3.0"], "must_not": []}
+{"id": "T02", "q": "Rear open space for a 225 sq m plot?", "expect_status": "answered", "expect_rules": ["56"], "expect_numbers": ["2.5"], "must_not": ["3.0 m"]}
+{"id": "T03", "q": "Rear open space for a 40 sq m plot?", "expect_status": "answered", "expect_rules": ["56"], "expect_numbers": [], "expect_any_text": ["Nil", "nil", "no rear", "not required", "No rear"], "must_not": []}
+{"id": "T04", "q": "Front open space for a house on an 18 m road?", "expect_status": "answered", "expect_rules": ["56"], "expect_numbers": ["4.5"], "must_not": ["6.0 m"]}
+{"id": "T05", "q": "What is the permission fee for a house with 250 sq m built-up area?", "expect_status": "answered", "expect_rules": ["21"], "expect_numbers": ["3,000"], "must_not": []}
+{"id": "T06", "q": "What is the permission fee for a shop with 250 sq m built-up area?", "expect_status": "answered", "expect_rules": ["21"], "expect_numbers": ["4,500"], "must_not": []}
+{"id": "T07", "q": "How far should a building be from an 11 kV high voltage line?", "expect_status": "answered", "expect_rules": ["52"], "expect_numbers": ["3.7", "1.2"], "must_not": []}
+{"id": "T08", "q": "What is the FAR for residential plots?", "expect_status": "answered", "expect_rules": ["61"], "expect_numbers": ["1.25"], "must_not": []}
+{"id": "T09", "q": "Can I build 15 m high on a 200 sq m plot on a 9 m road?", "expect_status": "answered", "expect_rules": ["42"], "expect_numbers": ["12.5"], "must_not": []}
+{"id": "T10", "q": "What is the minimum plot size for an agricultural tourist facility?", "expect_status": "answered", "expect_rules": ["17"], "expect_numbers": ["1.00"], "must_not": []}
+{"id": "T11", "q": "Is a separate permission needed for a basement?", "expect_status": "answered", "expect_rules": ["76"], "expect_numbers": [], "must_not": []}
+{"id": "T12", "q": "How do I get my electricity bill corrected?", "expect_status": "not_found"}
+{"id": "T13", "q": "150 वर्ग मीटर के आवासीय प्लॉट में पीछे कितनी जगह छोड़नी है?", "lang": "hi", "expect_status": "answered", "expect_rules": ["56"], "expect_numbers": ["1.5"], "must_not": []}

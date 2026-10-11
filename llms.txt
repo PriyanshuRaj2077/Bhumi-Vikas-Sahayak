@@ -1,0 +1,21 @@
+# Bhumi Vikas Sahayak
+
+> Rule-cited answers from the Madhya Pradesh Bhumi Vikas Rules, 2012 for the Bhopal Municipal Corporation building-permission clerk. Every answer gives the rule number, verbatim rule text and PDF page; table numbers (setbacks, fees, FAR, clearances) come from unit-tested code; questions outside the rules return "not found"; later amendments (28-08-2026, Rule 2(5)(c)) are flagged. English and Hindi. Works offline without an API key.
+
+## Start here
+- [AGENTS.md](AGENTS.md): how to run, verify (`python verify.py`), CLI/API usage, answer schema, repo map, invariants
+- [README.md](README.md): overview for humans, setup in 5 steps, accuracy, limitations
+- [docs/REQUIREMENTS_TRACE.md](docs/REQUIREMENTS_TRACE.md): problem-statement requirements → code → tests
+
+## Design docs
+- [docs/01-research.md](docs/01-research.md): problem, user, data quirks, verified rule tables, answer key for the 17 sample questions
+- [docs/02-implementation-plan.md](docs/02-implementation-plan.md): scope, team plan, test plan, demo script
+- [docs/03-backend-architecture.md](docs/03-backend-architecture.md): pipeline, Claude citations + caching + tools, verifier, API
+- [docs/04-frontend-design.md](docs/04-frontend-design.md): counter-first UX, wireframes, Hindi, design system
+
+## Key code
+- [backend/app/main.py](backend/app/main.py): pipeline `ask_events()` and HTTP API
+- [backend/app/calculators/core.py](backend/app/calculators/core.py): rule tables + calculators
+- [backend/app/verify.py](backend/app/verify.py): citation/number/amendment checks
+- [backend/app/llm/engine.py](backend/app/llm/engine.py): Claude tool loop
+- [eval/gold.jsonl](eval/gold.jsonl): evaluation questions with expected rules and numbers

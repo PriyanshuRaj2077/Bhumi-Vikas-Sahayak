@@ -1,0 +1,450 @@
+{
+ "summary": {
+  "mode": "offline",
+  "model": null,
+  "run_at": "2026-10-11T13:07:11",
+  "total": 17,
+  "correct": 17,
+  "all_total": 30,
+  "all_correct": 30,
+  "label": "17/17 sample questions correct (offline mode)"
+ },
+ "rows": [
+  {
+   "id": "S01",
+   "q": "My house faces a 10 m wide street and will be 9 m tall. How much open space do I leave at the front?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "56"
+   ],
+   "answer": "- **Front open space: 3.6 m** (Rule 56(1)(a))",
+   "seconds": 0.5,
+   "usage": null
+  },
+  {
+   "id": "S02",
+   "q": "I want a farm house on agricultural land. What is the minimum plot size and the maximum FAR?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "17",
+    "61"
+   ],
+   "answer": "- **FAR / max floor area: 1.25** (Rule 61 Table 8)\n- **Farm house: Min plot 0.40 ha · FAR 0.10** (Rule 17(a)-(f))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S03",
+   "q": "My development permission was granted in 2023. How long does it stay valid, and how many times can I renew it?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "23"
+   ],
+   "answer": "- **Permission validity: 3 years (to 01-07-2026) + 2 renewals of 1 year (to 01-07-2027, 01-07-2028)** (Rule 23(1)-(2))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S04",
+   "q": "I applied for building permission and the authority has not replied. What happens if they miss the deadline?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "23",
+    "27",
+    "28"
+   ],
+   "answer": "Most relevant rule: **Rule 28, Limitation period for grant or refusal of permission** (p.48)\n\n> 28. Limitation period for grant or refusal of permission.- If the Authority fails to intimate in writing its refusal of sanction to the applicant within the period prescribed in sub-section (5) of Section 30 of the Act, the permission shall be deemed to have b…",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S05",
+   "q": "How far must my balcony stay from a low-voltage overhead electric line, vertically and horizontally?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "52"
+   ],
+   "answer": "- **Clearance from electric line: 2.5 m vertically, 1.2 m horizontally** (Rule 52(1))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S06",
+   "q": "Who is allowed to sign and submit my building plans?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "18",
+    "26",
+    "89"
+   ],
+   "answer": "Most relevant rule: **Rule 18, Preparation and signing of plans** (p.34)\n\n> 18. Preparation and signing of plans.- The architect, structural engineer, engineer, supervisor or town planner, as the case may be, shall prepare and duly sign any plan and shall indicate his name, address, qualifications and license number and it's validity.…",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S07",
+   "q": "What documents go with an application for building permission?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "14",
+    "16",
+    "26-B"
+   ],
+   "answer": "Most relevant rule: **Rule 14(2), Application for development or building permission** (p.23)\n\n> building stating that all the provisions of Rule 88 (for Earthquake prone areas) has been complied with. (3) Application for modification of permission under section 29(3) of the Act,- (i) The application for modifying a permission already granted under sectio…",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S08",
+   "q": "What is the fee for building permission for a residential house?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "17",
+    "21",
+    "26"
+   ],
+   "answer": "- Application fee Rs 1.00 per sq m of proposed built-up area (Rule 21(2)(ii)). Permission fee for a residential building goes by built-up slab, from Rs 750 (up to 75 sq m) to Rs 25,000 (2,001-2,500 sq m) and Rs 50,000 above 2,500 sq m (Rule 21(3)(b)); commercial adds 50%; high-rise residential is Rs 10 per sq m (Rule 21(3)(c)).",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S09",
+   "q": "Can I change my plan after it is sanctioned?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "24",
+    "27",
+    "33"
+   ],
+   "answer": "Most relevant rule: **Rule 24, Deviation from sanctioned plan** (p.41)\n\n> 24. Deviation from sanctioned plan.- (1) No deviation from the sanctioned plan shall be permissible if the construction involved in such deviation,- (a) affects the front Marginal Open Space; 1 [(b) exceeds 30% of the permissible FAR;\"] (c) is related to the p…",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S10",
+   "q": "What is the minimum rear open space for a 150 sq m residential plot?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "56"
+   ],
+   "answer": "- **Rear open space: 1.5 m** (Rule 56(2)(a))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S11",
+   "q": "Do I need separate development permission for a 300 sq m plot that matches the Development Plan?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "2"
+   ],
+   "answer": "- **Separate development permission: Not needed if the plan conforms to the Development Plan land use** (Rule 2(5)(c) as amended 28-08-2026)",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S12",
+   "q": "Which rule decides what happens when the Development Plan and these rules disagree?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "103",
+    "28",
+    "37"
+   ],
+   "answer": "Most relevant rule: **Rule 103, Provisions of development plan to take precedence** (p.107)\n\n> [103. Provisions of development plan to take precedence.- The norms and regulations applicable in the plan area shall be such as prescribed in the relevant development plan : Provided that if the norms and regulation as provided in the development plan are dif…",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S13",
+   "q": "What are the rules for lifts in a building taller than 15 m?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "26",
+    "82",
+    "83"
+   ],
+   "answer": "Most relevant rule: **Rule 83, Provision of Lifts, Escalators or Moving Walks** (p.95)\n\n> [83. Provision of Lifts, Escalators or Moving Walks.- Provision for lifts shall be made for building more than 12.5 meters in height. Planning, design, installation, operation, maintenance and inspection of Lift, Escalator or Moving Walk to be installed in a b…",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S14",
+   "q": "मेरा प्लॉट 200 वर्ग मीटर का है और सामने 9 मीटर चौड़ी सड़क है। आगे कितनी जगह खाली छोड़नी होगी?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "56"
+   ],
+   "answer": "- **सामने खुला स्थान (फ्रंट एमओएस): 3.0 m** (नियम 56(1)(a))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S15",
+   "q": "बिल्डिंग परमिशन की फीस कितनी है और किस नियम में लिखी है?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "14",
+    "21",
+    "26-B"
+   ],
+   "answer": "- Application fee Rs 1.00 per sq m of proposed built-up area (Rule 21(2)(ii)). Permission fee for a residential building goes by built-up slab, from Rs 750 (up to 75 sq m) to Rs 25,000 (2,001-2,500 sq m) and Rs 50,000 above 2,500 sq m (Rule 21(3)(b)); commercial adds 50%; high-rise residential is Rs 10 per sq m (Rule 21(3)(c)).",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S16",
+   "q": "How do I pay my property tax online?",
+   "ok": true,
+   "problems": [],
+   "status": "not_found",
+   "mode": "rules",
+   "rules": [],
+   "answer": "",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "S17",
+   "q": "What is the current market rate for land in Kolar Road, Bhopal?",
+   "ok": true,
+   "problems": [],
+   "status": "not_found",
+   "mode": "rules",
+   "rules": [],
+   "answer": "",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T01",
+   "q": "My plot is 200 sq m on a 9 m road. How much gap do I leave at the front, how many floors can I build, and what fee do I pay?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "21",
+    "42",
+    "56",
+    "61"
+   ],
+   "answer": "- **Front open space: 3.0 m** (Rule 56(1)(a))\n- **Permission fee: Rs 3,000** (Rule 21(3)(b))\n- **Application fee: Rs 250** (Rule 21(2)(ii))\n- **Total under these rules: Rs 3,250** (Rule 21)\n- **FAR / max floor area: 1.25 → max 250 sq m total floor area** (Rule 61 Table 8)\n- **Maximum height: 12.5 m (Rule 56 regime)** (Rule 42(1) Table 4)\n- The rules do not fix a number of floors; they limit height",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T02",
+   "q": "Rear open space for a 225 sq m plot?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "56"
+   ],
+   "answer": "- **Rear open space: 2.5 m** (Rule 56(2)(a))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T03",
+   "q": "Rear open space for a 40 sq m plot?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "56"
+   ],
+   "answer": "- **Rear open space: Nil** (Rule 56(2)(a))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T04",
+   "q": "Front open space for a house on an 18 m road?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "56"
+   ],
+   "answer": "- **Front open space: 4.5 m** (Rule 56(1)(a))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T05",
+   "q": "What is the permission fee for a house with 250 sq m built-up area?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "21"
+   ],
+   "answer": "- **Permission fee: Rs 3,000** (Rule 21(3)(b))\n- **Application fee: Rs 250** (Rule 21(2)(ii))\n- **Total under these rules: Rs 3,250** (Rule 21)",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T06",
+   "q": "What is the permission fee for a shop with 250 sq m built-up area?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "21"
+   ],
+   "answer": "- **Permission fee: Rs 4,500** (Rule 21(3)(b))\n- **Application fee: Rs 250** (Rule 21(2)(ii))\n- **Total under these rules: Rs 4,750** (Rule 21)",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T07",
+   "q": "How far should a building be from an 11 kV high voltage line?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "52"
+   ],
+   "answer": "- **Clearance from electric line: 3.7 m vertically, 1.2 m horizontally** (Rule 52(1))",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T08",
+   "q": "What is the FAR for residential plots?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "61"
+   ],
+   "answer": "- **FAR / max floor area: 1.25** (Rule 61 Table 8)",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T09",
+   "q": "Can I build 15 m high on a 200 sq m plot on a 9 m road?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "42"
+   ],
+   "answer": "- **Height above 12.5 m: Not eligible** (Rule 42 Table 4)",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T10",
+   "q": "What is the minimum plot size for an agricultural tourist facility?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "17"
+   ],
+   "answer": "- **Agricultural tourist facility (17-a): Min plot 1.00 ha · FAR 0.10** (Rule 17-a)",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T11",
+   "q": "Is a separate permission needed for a basement?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "76",
+    "87",
+    "96"
+   ],
+   "answer": "Most relevant rule: **Rule 76(4)(e), Basement** (p.91)\n\n> design and adequate damp proofing treatment done; (f) the access to the basement shall be separate from the main entrance and in addition another staircase/ramp shall be provided for access to and exit from various floors of the basement. Where the staircase/r…",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T12",
+   "q": "How do I get my electricity bill corrected?",
+   "ok": true,
+   "problems": [],
+   "status": "not_found",
+   "mode": "rules",
+   "rules": [],
+   "answer": "",
+   "seconds": 0.1,
+   "usage": null
+  },
+  {
+   "id": "T13",
+   "q": "150 वर्ग मीटर के आवासीय प्लॉट में पीछे कितनी जगह छोड़नी है?",
+   "ok": true,
+   "problems": [],
+   "status": "answered",
+   "mode": "offline",
+   "rules": [
+    "56"
+   ],
+   "answer": "- **पीछे खुला स्थान (रियर एमओएस): 1.5 m** (नियम 56(2)(a))",
+   "seconds": 0.1,
+   "usage": null
+  }
+ ]
+}

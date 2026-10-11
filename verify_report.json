@@ -1,0 +1,56 @@
+{
+  "project": "bhumi-vikas-sahayak",
+  "run_at": "2026-10-11T13:07:16",
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "data_integrity",
+      "passed": true,
+      "rules": 106,
+      "amendments": 1,
+      "problems": []
+    },
+    {
+      "name": "no_secrets_in_repo",
+      "passed": true,
+      "files": []
+    },
+    {
+      "name": "backend_tests",
+      "passed": true,
+      "tests_passed": 114,
+      "tests_failed": 0,
+      "seconds": 2.5,
+      "tail": [
+        "........................................................................ [ 63%]",
+        "..........................................                               [100%]",
+        "114 passed in 1.78s"
+      ]
+    },
+    {
+      "name": "eval_offline",
+      "passed": true,
+      "summary": {
+        "mode": "offline",
+        "model": null,
+        "run_at": "2026-10-11T13:07:11",
+        "total": 17,
+        "correct": 17,
+        "all_total": 30,
+        "all_correct": 30,
+        "label": "17/17 sample questions correct (offline mode)"
+      },
+      "seconds": 4.3,
+      "failures": []
+    },
+    {
+      "name": "frontend_build",
+      "passed": true,
+      "seconds": 4.0,
+      "tail": [
+        "",
+        "\u001b[32m✓ built in 1.08s\u001b[39m"
+      ]
+    }
+  ]
+}
