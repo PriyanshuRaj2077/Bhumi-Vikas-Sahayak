@@ -1,9 +1,10 @@
-import { Clock, CornerDownLeft, Mic, MicOff, Search, ShieldAlert } from 'lucide-react'
+import { Clock, Mic, MicOff, Search, ShieldAlert, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ask, type Answer, type Fact, type Meta } from '../api'
 import { EXAMPLES, useI18n } from '../i18n'
 import { AnswerPanel } from './AnswerPanel'
 import { FactChip, Spinner, Warning, type PdfTarget } from './common'
+import { BhumiLogoMark } from './Logo'
 
 type Phase = 'idle' | 'loading' | 'done' | 'error'
 
@@ -18,7 +19,6 @@ interface Props {
   onAnswered: () => void
 }
 
-// Minimal typing for the Web Speech API (not in the TS DOM lib).
 type SpeechRec = {
   lang: string
   interimResults: boolean
@@ -163,131 +163,178 @@ export function AskView({ meta, onOpenPdf, onOpenRule, onBrowse, onPlotCheck, pe
   const compact = phase !== 'idle'
 
   return (
-    <div className="space-y-5">
-      <section className={`no-print transition-all ${compact ? '' : 'pt-6 sm:pt-10'}`}>
-        {!compact && (
-          <div className="mb-5 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-brand-900 sm:text-3xl">{t.heading}</h1>
-            <p className="mt-1 text-slate-500">{t.sub}</p>
+    <div className="space-y-6">
+      {/* Campus Connect AI Finder Centered Hero */}
+      {!compact && (
+        <section className="no-print pt-6 pb-2 flex flex-col items-center text-center">
+          {/* Centered Bespoke Bhumi Vikas Logo Mark */}
+          <div className="relative mb-4 transition-transform duration-200 hover:scale-105">
+            <BhumiLogoMark size={58} className="shadow-[0_8px_24px_rgba(239,123,69,0.32)]" />
           </div>
-        )}
+
+          <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-[var(--color-ink)] tracking-tight">
+            {lang === 'hi' ? 'आप किस नियम की जानकारी चाहते हैं?' : 'What rule are you looking for?'}
+          </h2>
+
+          <p className="mt-2.5 max-w-xl text-sm text-[var(--color-ink-muted)] leading-relaxed">
+            {lang === 'hi'
+              ? 'अपने भूखंड या भवन का विवरण सरल भाषा में लिखें। मध्य प्रदेश भूमि विकास नियम, 2012 के तहत सत्यापित उत्तर प्राप्त करें।'
+              : 'Describe your plot or query in plain language. The assistant verifies rules directly from statutory tables without hallucination.'}
+          </p>
+
+          {/* Campus Connect Sample Prompt Chips */}
+          <div className="mt-6 flex flex-wrap justify-center gap-2.5 max-w-2xl">
+            {EXAMPLES[lang].map((ex) => (
+              <button
+                key={ex}
+                type="button"
+                onClick={() => submit(ex)}
+                className="query-starter-pill group"
+              >
+                <Sparkles size={13} className="text-[var(--color-orange)] group-hover:scale-110 transition-transform" />
+                <span>{ex}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Campus-Connect Floating Search Pill Bar */}
+      <section className="no-print">
         <form
           onSubmit={(e) => {
             e.preventDefault()
             submit()
           }}
-          className="flex items-stretch gap-2 rounded-2xl border border-slate-300 bg-white p-2 shadow-sm focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-100"
-          data-onboard="search"
+          className="campus-card rounded-[26px] p-3 sm:p-3.5 shadow-card-lg focus-within:ring-4 focus-within:ring-[var(--color-orange)]/15 focus-within:border-[var(--color-orange)] transition-all"
         >
-          <Search className="ml-2 mt-3 shrink-0 text-slate-400" size={20} aria-hidden />
-          <textarea
-            ref={inputRef}
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                submit()
-              }
-              if (e.key === 'Escape') reset()
-            }}
-            rows={Math.min(4, Math.max(compact ? 1 : 2, Math.ceil(q.length / 64)))}
-            placeholder={t.placeholder}
-            aria-label={t.heading}
-            className="min-h-[2.75rem] flex-1 resize-none bg-transparent px-1 py-2.5 text-[1.05rem] outline-none placeholder:text-slate-400"
-            autoFocus
-          />
-          {SpeechCtor && (
+          <div className="flex items-start gap-3 px-2 pt-1">
+            <Search className="mt-2.5 shrink-0 text-[var(--color-ink-light)]" size={20} aria-hidden />
+            <textarea
+              ref={inputRef}
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  submit()
+                }
+                if (e.key === 'Escape') reset()
+              }}
+              rows={Math.min(4, Math.max(compact ? 1 : 2, Math.ceil(q.length / 70)))}
+              placeholder={t.placeholder}
+              aria-label={t.heading}
+              className="min-h-[2.5rem] flex-1 resize-none bg-transparent py-1 text-base text-[var(--color-ink)] placeholder:text-[var(--color-ink-light)] outline-none"
+              autoFocus
+            />
+          </div>
+
+          <div className="mt-2 flex items-center justify-between border-t border-[var(--color-border-subtle)] pt-2 px-1">
+            <div className="flex items-center gap-2 text-xs text-[var(--color-ink-light)]">
+              {SpeechCtor && (
+                <button
+                  type="button"
+                  onClick={toggleMic}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                    listening
+                      ? 'bg-red-500/20 text-red-500 ring-1 ring-red-500/40 animate-pulse'
+                      : 'text-[var(--color-ink-muted)] hover:bg-[var(--color-orange-tint)] hover:text-[var(--color-orange-text)]'
+                  }`}
+                  aria-label="Voice input"
+                >
+                  {listening ? <MicOff size={14} /> : <Mic size={14} />}
+                  <span className="hidden sm:inline">{listening ? 'Listening...' : 'Voice'}</span>
+                </button>
+              )}
+            </div>
+
             <button
-              type="button"
-              onClick={toggleMic}
-              className={`self-center rounded-xl p-2.5 ${listening ? 'bg-red-50 text-red-600' : 'text-slate-500 hover:bg-slate-100'}`}
-              aria-label="Voice input"
-              title={lang === 'hi' ? 'बोलकर पूछें' : 'Speak your question'}
+              type="submit"
+              disabled={phase === 'loading'}
+              className="btn-primary"
             >
-              {listening ? <MicOff size={20} /> : <Mic size={20} />}
+              <Sparkles size={15} aria-hidden />
+              <span>{t.askBtn}</span>
             </button>
-          )}
-          <button
-            type="submit"
-            disabled={phase === 'loading'}
-            className="inline-flex items-center gap-2 self-center rounded-xl bg-brand-600 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-brand-700 disabled:opacity-60"
-          >
-            {t.askBtn} <CornerDownLeft size={16} aria-hidden />
-          </button>
+          </div>
         </form>
 
-        {!compact && (
-          <>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <span className="self-center text-sm text-slate-500">{t.try}:</span>
-              {EXAMPLES[lang].map((ex) => (
+        <p className="mt-2 text-center text-[11px] text-[var(--color-ink-light)]">
+          AI matches questions with official MP Bhumi Vikas tables directly.
+        </p>
+
+        {/* Recent Counter Queries */}
+        {!compact && meta && meta.recent.length > 0 && (
+          <div className="mx-auto mt-8 max-w-2xl">
+            <div className="mb-2.5 flex items-center justify-between px-1">
+              <h3 className="flex items-center gap-2 font-heading font-extrabold text-xs uppercase tracking-wider text-[var(--color-ink-muted)]">
+                <Clock size={14} className="text-[var(--color-orange)]" aria-hidden /> {t.recent}
+              </h3>
+              <span className="text-[11px] font-mono text-[var(--color-ink-light)]">Counter records</span>
+            </div>
+            <div className="campus-card overflow-hidden divide-y divide-[var(--color-border-subtle)]">
+              {meta.recent.slice(0, 5).map((r) => (
                 <button
-                  key={ex}
+                  key={r.id}
                   type="button"
-                  onClick={() => submit(ex)}
-                  className="max-w-xs truncate rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm hover:border-brand-300 hover:text-brand-700"
-                  title={ex}
+                  onClick={() => submit(r.question)}
+                  className="group flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-[var(--color-orange-tint)]/40 cursor-pointer"
                 >
-                  {ex}
+                  <span className="truncate text-xs font-bold text-[var(--color-ink)] group-hover:text-[var(--color-orange-text)]">
+                    {r.question}
+                  </span>
+                  <span className="shrink-0 font-mono text-[11px] font-bold text-[var(--color-orange-text)]">
+                    {r.status === 'not_found' ? '—' : r.rules.slice(0, 3).map((x) => `R.${x}`).join(' ')}
+                  </span>
                 </button>
               ))}
             </div>
-            {meta && meta.recent.length > 0 && (
-              <div className="mx-auto mt-8 max-w-2xl">
-                <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-500">
-                  <Clock size={14} aria-hidden /> {t.recent}
-                </h2>
-                <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
-                  {meta.recent.slice(0, 5).map((r) => (
-                    <li key={r.id}>
-                      <button type="button" onClick={() => submit(r.question)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-slate-50">
-                        <span className="flex-1 truncate text-slate-700">{r.question}</span>
-                        <span className="shrink-0 text-xs font-semibold text-brand-600">
-                          {r.status === 'not_found' ? '—' : r.rules.slice(0, 3).map((x) => `R.${x}`).join(' ')}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
+          </div>
         )}
       </section>
 
+      {/* PII Sanitization Notice */}
       {personal && (
-        <div className="no-print flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
-          <ShieldAlert size={16} aria-hidden /> {t.personal}
+        <div className="no-print flex items-center gap-2.5 rounded-[16px] border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs font-semibold text-red-900 dark:text-red-200 shadow-2xs">
+          <ShieldAlert size={16} className="shrink-0 text-red-600 dark:text-red-400" aria-hidden />
+          <span>{t.personal}</span>
         </div>
       )}
 
+      {/* Loading & Streaming State */}
       {phase === 'loading' && (
         <section className="no-print space-y-4" aria-busy="true">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="mb-3 text-sm italic text-slate-500">“{asked}”</p>
+          <div className="campus-card rounded-[22px] p-6 shadow-card">
+            <p className="mb-3 text-xs font-bold text-[var(--color-ink-light)] italic">“{asked}”</p>
             {stream ? (
-              <p className="caret whitespace-pre-wrap text-[1.05rem] leading-relaxed text-slate-800">{stream.replace(/^NOT_FOUND.*$/m, '')}</p>
+              <p className="caret whitespace-pre-wrap text-base leading-relaxed text-[var(--color-ink)] font-medium">
+                {stream.replace(/^NOT_FOUND.*$/m, '')}
+              </p>
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 <Spinner label={toolBusy ? t.calculating : t.thinking} />
-                <div className="h-4 w-3/4 animate-pulse rounded bg-slate-100" />
-                <div className="h-4 w-1/2 animate-pulse rounded bg-slate-100" />
+                <div className="h-4 w-4/5 animate-pulse rounded-md bg-[var(--color-surface-side)]" />
+                <div className="h-4 w-3/5 animate-pulse rounded-md bg-[var(--color-surface-side)]" />
               </div>
             )}
           </div>
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
             {liveFacts.length > 0
               ? liveFacts.map((f, i) => <FactChip key={f.key + i} fact={f} onOpen={onOpenPdf} index={i} />)
-              : [0, 1, 2].map((i) => <div key={i} className="h-24 animate-pulse rounded-xl border border-slate-100 bg-white" />)}
+              : [0, 1, 2].map((i) => (
+                  <div key={i} className="h-28 animate-pulse rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xs" />
+                ))}
           </div>
+
           {notices.map((n) => (
             <Warning key={n}>{n}</Warning>
           ))}
+
           {slow && (
             <Warning>
               {t.timeout}{' '}
-              <button type="button" onClick={onPlotCheck} className="font-semibold underline">
+              <button type="button" onClick={onPlotCheck} className="font-extrabold underline text-[var(--color-orange-text)] cursor-pointer">
                 {t.tabPlot} →
               </button>
             </Warning>
@@ -295,16 +342,25 @@ export function AskView({ meta, onOpenPdf, onOpenRule, onBrowse, onPlotCheck, pe
         </section>
       )}
 
+      {/* Error State */}
       {phase === 'error' && (
-        <div className="no-print rounded-2xl border border-red-200 bg-red-50 p-5 text-red-900">
-          <p className="font-semibold">{t.errorTitle}</p>
-          <p className="mt-1 text-sm">{error}</p>
-          <button type="button" onClick={() => submit(asked)} className="mt-3 rounded-lg bg-red-700 px-3 py-1.5 text-sm font-semibold text-white">
+        <div className="no-print rounded-[20px] border border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-6 text-red-950 dark:text-red-200 shadow-xs">
+          <div className="flex items-center gap-2">
+            <Sparkles size={18} className="text-red-600 dark:text-red-400" aria-hidden />
+            <p className="font-heading font-extrabold">{t.errorTitle}</p>
+          </div>
+          <p className="mt-1 text-sm text-red-800 dark:text-red-300">{error}</p>
+          <button
+            type="button"
+            onClick={() => submit(asked)}
+            className="btn-primary mt-4"
+          >
             {t.retry}
           </button>
         </div>
       )}
 
+      {/* Final Answer Display */}
       {phase === 'done' && answer && (
         <AnswerPanel answer={answer} question={asked} onOpenPdf={onOpenPdf} onAskAgain={reset} onBrowse={onBrowse} />
       )}

@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Copy, Info, Printer, Quote, SearchX, ThumbsDown, ThumbsUp, WifiOff } from 'lucide-react'
+import { Check, ChevronDown, Copy, HelpCircle, Printer, Quote, SearchX, ThumbsDown, ThumbsUp, WifiOff } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { sendFeedback, type Answer } from '../api'
@@ -42,15 +42,17 @@ function Answered({ answer, question, onOpenPdf }: { answer: Answer; question: s
   const firstLine = answer.answer_md.split('\n')[0].replace(/\[\d+\]/g, '').replace(/\*\*/g, '').replace(/^- /, '')
 
   return (
-    <article className="rise space-y-4" aria-live="polite">
+    <article className="rise space-y-5" aria-live="polite">
+      {/* Offline Mode Alert */}
       {answer.mode === 'offline' && (
-        <div className="no-print flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700">
-          <WifiOff size={16} aria-hidden /> {t.offlineMode}
+        <div className="no-print flex items-center gap-2.5 rounded-2xl border border-amber-300 dark:border-amber-700 bg-[var(--color-yellow-tint)] px-4 py-3 text-xs font-semibold text-[#966708] dark:text-[#FDE076]">
+          <WifiOff size={15} className="text-[#B7791F]" aria-hidden /> {t.offlineMode}
         </div>
       )}
 
-      <div className="no-print rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="answer-md text-[1.02rem] leading-relaxed text-slate-800">
+      {/* Main Answer Card */}
+      <div className="no-print campus-card p-6 sm:p-7">
+        <div className="answer-md text-base leading-relaxed text-[var(--color-ink)]">
           <ReactMarkdown
             components={{
               a: ({ href, children }) => {
@@ -62,7 +64,7 @@ function Answered({ answer, question, onOpenPdf }: { answer: Answer; question: s
                     <button
                       type="button"
                       onClick={() => openCitation(n)}
-                      className="mx-0.5 inline-flex -translate-y-1 items-center rounded bg-brand-50 px-1 text-[0.7rem] font-bold text-brand-600 hover:bg-brand-100"
+                      className="mx-1 inline-flex -translate-y-1 items-center rounded-full border border-[var(--color-orange)]/40 bg-[var(--color-orange-tint)] px-1.5 py-0.2 text-[10px] font-bold text-[var(--color-orange-text)] shadow-2xs hover:bg-[var(--color-orange)] hover:text-white transition cursor-pointer"
                       title={c ? `Rule ${c.rule}${c.sub_rule}${c.page ? ` · p.${c.page}` : ''}` : undefined}
                     >
                       {n}
@@ -70,7 +72,7 @@ function Answered({ answer, question, onOpenPdf }: { answer: Answer; question: s
                   )
                 }
                 return (
-                  <a href={href} target="_blank" rel="noreferrer" className="text-brand-600 underline">
+                  <a href={href} target="_blank" rel="noreferrer" className="text-[var(--color-orange-text)] font-semibold underline underline-offset-2 hover:opacity-80">
                     {children}
                   </a>
                 )
@@ -81,8 +83,10 @@ function Answered({ answer, question, onOpenPdf }: { answer: Answer; question: s
           </ReactMarkdown>
         </div>
 
+        {/* Rule Badges */}
         {answer.citations.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[var(--color-border-subtle)] pt-4">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--color-ink-light)] mr-1">Applicable:</span>
             {dedupeRules(answer.citations).map((c) => (
               <RuleBadge
                 key={c.n}
@@ -96,15 +100,17 @@ function Answered({ answer, question, onOpenPdf }: { answer: Answer; question: s
         )}
       </div>
 
+      {/* Calculated Fact Chips Grid */}
       {answer.facts.length > 0 && (
-        <div className="no-print grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="no-print grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
           {answer.facts.map((f, i) => (
             <FactChip key={f.key + i} fact={f} onOpen={onOpenPdf} index={i} />
           ))}
         </div>
       )}
 
-      <div className="no-print space-y-2">
+      {/* Amendments & Statutory Warnings */}
+      <div className="no-print space-y-2.5">
         {answer.amendments.map((a) => (
           <AmendmentNotice key={a.id} a={a} />
         ))}
@@ -118,55 +124,76 @@ function Answered({ answer, question, onOpenPdf }: { answer: Answer; question: s
         )}
       </div>
 
+      {/* Statutory Citations Accordion */}
       {answer.citations.length > 0 && (
-        <details open className="no-print group rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-3 font-semibold text-slate-700">
-            <Quote size={16} aria-hidden /> {t.sources} ({answer.citations.length})
-            <ChevronDown size={16} className="ml-auto transition group-open:rotate-180" aria-hidden />
+        <details open className="no-print group campus-card overflow-hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-6 py-4.5 text-xs font-bold uppercase tracking-wider text-[var(--color-ink-muted)] transition hover:text-[var(--color-ink)]">
+            <span className="flex items-center gap-2">
+              <Quote size={14} className="text-[var(--color-orange)]" aria-hidden />
+              <span>{t.sources} ({answer.citations.length})</span>
+            </span>
+            <ChevronDown size={15} className="transition-transform duration-200 group-open:rotate-180" aria-hidden />
           </summary>
-          <ol className="space-y-3 px-5 pb-4">
+          <ol className="space-y-3 px-6 pb-6">
             {answer.citations.map((c) => (
-              <li key={c.n} id={`cite-${c.n}`} className="rounded-xl bg-slate-50 p-3">
-                <div className="mb-1.5 flex flex-wrap items-center gap-2 text-sm">
-                  <span className="flex h-5 w-5 items-center justify-center rounded bg-brand-600 text-xs font-bold text-white">{c.n}</span>
-                  <span className="font-semibold text-slate-800">
-                    Rule {c.rule}
-                    {c.sub_rule} · {c.title}
-                  </span>
+              <li key={c.n} id={`cite-${c.n}`} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-user-card)] p-4 text-sm">
+                <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-ink)] text-[10px] font-extrabold text-[var(--color-surface)]">
+                      {c.n}
+                    </span>
+                    <span className="font-bold text-[var(--color-ink)]">
+                      Rule {c.rule}{c.sub_rule}
+                    </span>
+                    <span className="hidden sm:inline text-[var(--color-ink-light)]">· {c.title}</span>
+                  </div>
                   {c.page ? (
                     <button
                       type="button"
                       onClick={() => onOpenPdf({ page: c.page!, quote: c.quote, label: `Rule ${c.rule}${c.sub_rule}` })}
-                      className="ml-auto text-xs font-semibold text-brand-600 hover:underline"
+                      className="font-bold text-[var(--color-orange-text)] hover:underline cursor-pointer"
                     >
                       {t.openPdf} {c.page} →
                     </button>
                   ) : c.pdf_url ? (
-                    <a className="ml-auto text-xs font-semibold text-brand-600 hover:underline" href={c.pdf_url} target="_blank" rel="noreferrer">
+                    <a className="font-bold text-[var(--color-orange-text)] hover:underline" href={c.pdf_url} target="_blank" rel="noreferrer">
                       {t.source} ↗
                     </a>
                   ) : null}
                 </div>
-                <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[0.78rem] leading-relaxed text-slate-700">{c.quote}</pre>
+                <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[11.5px] leading-relaxed text-[var(--color-ink)] bg-[var(--color-surface)] p-3.5 rounded-xl border border-[var(--color-border-subtle)]">
+                  {c.quote}
+                </pre>
               </li>
             ))}
           </ol>
         </details>
       )}
 
+      {/* "Why These Numbers" Calculation Breakdown */}
       {answer.facts.length > 0 && (
         <div className="no-print">
-          <button type="button" onClick={() => setShowWhy((v) => !v)} className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-brand-700">
-            <Info size={15} aria-hidden /> {t.why}
-            <ChevronDown size={15} className={`transition ${showWhy ? 'rotate-180' : ''}`} aria-hidden />
+          <button
+            type="button"
+            onClick={() => setShowWhy((v) => !v)}
+            className="flex items-center gap-2 text-xs font-bold text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition cursor-pointer"
+          >
+            <HelpCircle size={14} className="text-[var(--color-orange)]" aria-hidden /> {t.why}
+            <ChevronDown size={13} className={`transition-transform duration-200 ${showWhy ? 'rotate-180' : ''}`} aria-hidden />
           </button>
           {showWhy && (
-            <ul className="mt-2 space-y-2 rounded-xl border border-slate-200 bg-white p-4 text-sm">
+            <ul className="mt-3 space-y-2 campus-card p-5 text-xs text-[var(--color-ink-muted)]">
               {answer.facts.map((f, i) => (
-                <li key={f.key + i}>
-                  <span className="font-semibold">{lang === 'hi' ? f.label_hi || f.label : f.label}</span>:{' '}
-                  <span className="text-slate-700">{f.row_label}</span> → <strong>{f.display}</strong> ({f.citation})
-                  {f.notes.length > 0 && <ul className="ml-4 list-disc text-slate-600">{f.notes.map((n) => <li key={n}>{n}</li>)}</ul>}
+                <li key={f.key + i} className="border-b border-[var(--color-border-subtle)] pb-2.5 last:border-none last:pb-0">
+                  <span className="font-bold text-[var(--color-ink)]">{lang === 'hi' ? f.label_hi || f.label : f.label}</span>:{' '}
+                  <span>{f.row_label}</span> → <strong className="text-[var(--color-orange-text)]">{f.display}</strong> ({f.citation})
+                  {f.notes.length > 0 && (
+                    <ul className="ml-4 mt-1 list-disc text-[var(--color-ink-light)]">
+                      {f.notes.map((n) => (
+                        <li key={n}>{n}</li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>
@@ -174,28 +201,35 @@ function Answered({ answer, question, onOpenPdf }: { answer: Answer; question: s
         </div>
       )}
 
-      <footer className="no-print flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3">
-        <button type="button" onClick={() => window.print()} className="btn-primary inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700">
-          <Printer size={16} aria-hidden /> {t.print}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            navigator.clipboard?.writeText(plainText)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 1500)
-          }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-        >
-          {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />} {copied ? t.copied : t.copy}
-        </button>
+      {/* Action Footer (Print, Copy, Feedback) */}
+      <footer className="no-print flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border-subtle)] pt-5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button type="button" onClick={() => window.print()} className="btn-primary">
+            <Printer size={15} aria-hidden /> <span>{t.print}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard?.writeText(plainText)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 1500)
+            }}
+            className="btn-secondary"
+          >
+            {copied ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />}
+            <span>{copied ? t.copied : t.copy}</span>
+          </button>
+        </div>
         <Feedback id={answer.id} />
       </footer>
-      <p className="no-print text-xs text-slate-500">
+
+      {/* Statutory Rules Version Metadata */}
+      <p className="no-print text-center sm:text-left text-[11px] text-[var(--color-ink-light)]">
         {t.rulesVersion}: {answer.rules_version}
         {answer.latency_ms ? ` · ${(answer.latency_ms / 1000).toFixed(1)} s` : ''} · {answer.disclaimer}
       </p>
 
+      {/* Printable Citizen Slip (Only renders on print) */}
       <PrintSlip
         question={question}
         answerLine={answer.mode === 'ai' ? firstLine : undefined}
@@ -222,12 +256,12 @@ function Feedback({ id }: { id: string }) {
   const { t } = useI18n()
   const [state, setState] = useState<'idle' | 'wrong' | 'sent'>('idle')
   const [note, setNote] = useState('')
-  if (state === 'sent') return <span className="ml-auto text-sm text-emerald-700">{t.thanks}</span>
+  if (state === 'sent') return <span className="text-xs font-bold text-[var(--color-green-text)]">{t.thanks}</span>
   return (
-    <div className="ml-auto flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-2">
       {state === 'wrong' ? (
         <form
-          className="flex items-center gap-1.5"
+          className="flex items-center gap-2"
           onSubmit={(e) => {
             e.preventDefault()
             sendFeedback(id, 'wrong', note)
@@ -239,9 +273,11 @@ function Feedback({ id }: { id: string }) {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder={t.whatWrong}
-            className="w-64 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm"
+            className="w-56 rounded-full border border-[var(--color-border)] bg-[var(--color-input)] px-3.5 py-1.5 text-xs text-[var(--color-ink)] outline-none focus:border-[var(--color-orange)]"
           />
-          <button className="rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-semibold text-white">{t.send}</button>
+          <button className="rounded-full bg-[var(--color-ink)] px-3.5 py-1.5 text-xs font-bold text-[var(--color-surface)] hover:opacity-90 transition cursor-pointer">
+            {t.send}
+          </button>
         </form>
       ) : (
         <>
@@ -251,16 +287,16 @@ function Feedback({ id }: { id: string }) {
               sendFeedback(id, 'correct')
               setState('sent')
             }}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-700 hover:border-emerald-400 hover:text-emerald-700"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-1.5 text-xs font-semibold text-[var(--color-ink-muted)] hover:border-[var(--color-green)] hover:text-[var(--color-green-text)] transition cursor-pointer"
           >
-            <ThumbsUp size={15} aria-hidden /> {t.correct}
+            <ThumbsUp size={13} aria-hidden /> <span>{t.correct}</span>
           </button>
           <button
             type="button"
             onClick={() => setState('wrong')}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-700 hover:border-red-300 hover:text-red-700"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-1.5 text-xs font-semibold text-[var(--color-ink-muted)] hover:border-red-400 hover:text-red-500 transition cursor-pointer"
           >
-            <ThumbsDown size={15} aria-hidden /> {t.wrong}
+            <ThumbsDown size={13} aria-hidden /> <span>{t.wrong}</span>
           </button>
         </>
       )}
@@ -271,25 +307,31 @@ function Feedback({ id }: { id: string }) {
 function NotFoundCard({ answer, question, onAskAgain, onBrowse }: { answer: Answer; question: string; onAskAgain: () => void; onBrowse: () => void }) {
   const { t } = useI18n()
   return (
-    <article className="rise rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" aria-live="polite">
+    <article className="rise campus-card p-7 sm:p-8" aria-live="polite">
       <div className="flex items-start gap-4">
-        <div className="rounded-xl bg-brand-50 p-3 text-brand-600">
-          <SearchX size={28} aria-hidden />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-orange-tint)] text-[var(--color-orange)]">
+          <SearchX size={24} aria-hidden />
         </div>
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold text-brand-900">{t.notFoundTitle}</h2>
-          <p className="text-sm italic text-slate-500">“{question}”</p>
-          <p className="text-slate-700">{t.notFoundBody}</p>
-          {answer.not_found_reason ? <p className="rounded-lg bg-slate-50 p-3 text-slate-800">{answer.not_found_reason}</p> : null}
-          <div className="flex flex-wrap gap-2 pt-2">
-            <button type="button" onClick={onAskAgain} className="rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+        <div className="space-y-3">
+          <div>
+            <h2 className="text-xl font-extrabold tracking-tight text-[var(--color-ink)] font-heading">{t.notFoundTitle}</h2>
+            <p className="mt-1 text-xs italic text-[var(--color-ink-light)]">“{question}”</p>
+          </div>
+          <p className="text-sm leading-relaxed text-[var(--color-ink-muted)]">{t.notFoundBody}</p>
+          {answer.not_found_reason && (
+            <p className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-user-card)] p-3.5 text-xs text-[var(--color-ink)]">
+              {answer.not_found_reason}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2.5 pt-2">
+            <button type="button" onClick={onAskAgain} className="btn-primary">
               {t.askElse}
             </button>
-            <button type="button" onClick={onBrowse} className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <button type="button" onClick={onBrowse} className="btn-secondary">
               {t.browseAll}
             </button>
           </div>
-          <p className="pt-2 text-xs text-slate-500">{answer.disclaimer}</p>
+          <p className="pt-2 text-[11px] text-[var(--color-ink-light)]">{answer.disclaimer}</p>
         </div>
       </div>
     </article>
