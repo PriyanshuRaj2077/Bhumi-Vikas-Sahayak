@@ -3,7 +3,7 @@
 **Ask the Bhopal building rulebook and get an answer you can trust: rule number, exact text, PDF page.**
 
 > **Track 1 · Claude Impact Lab × Cerebras Café Compute, Bhopal · 11 Oct 2026**
-> **Team:** _<team name>_ · **Members:** _<names>_
+> **Team:** Maverics
 > **The one user we built for:** a building-permission clerk at the **Bhopal Municipal Corporation** counter.
 
 | | |
